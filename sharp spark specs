@@ -1,0 +1,2583 @@
+
+
+===== config.json =====
+{
+  "architectures": [
+    "Spark2_5ForCausalLM"
+  ],
+  "model_file": "modeling_spark.py",
+  "attention_bias": false,
+  "attention_dropout": 0.0,
+  "auto_map": {
+    "AutoConfig": "configuration_spark.Spark2_5Config",
+    "AutoModel": "modeling_spark.Spark2_5Model",
+    "AutoModelForCausalLM": "modeling_spark.Spark2_5ForCausalLM"
+  },
+  "bos_token_id": 0,
+  "dtype": "bfloat16",
+  "eos_token_id": 1,
+  "gate_attn_act_mode": "sigmoid",
+  "head_dim": 256,
+  "headwise_attn_output_gate": true,
+  "hidden_act": "gelu",
+  "hidden_size": 2560,
+  "initializer_range": 0.01976,
+  "intermediate_size": 10240,
+  "layer_types": [
+    "sliding_attention",
+    "sliding_attention",
+    "sliding_attention",
+    "full_attention",
+    "sliding_attention",
+    "sliding_attention",
+    "sliding_attention",
+    "full_attention",
+    "sliding_attention",
+    "sliding_attention",
+    "sliding_attention",
+    "full_attention",
+    "sliding_attention",
+    "sliding_attention",
+    "sliding_attention",
+    "full_attention",
+    "sliding_attention",
+    "sliding_attention",
+    "sliding_attention",
+    "full_attention",
+    "sliding_attention",
+    "sliding_attention",
+    "sliding_attention",
+    "full_attention",
+    "sliding_attention",
+    "sliding_attention",
+    "sliding_attention",
+    "full_attention",
+    "sliding_attention",
+    "sliding_attention",
+    "sliding_attention",
+    "full_attention",
+    "sliding_attention",
+    "sliding_attention",
+    "sliding_attention",
+    "full_attention"
+  ],
+  "max_position_embeddings": 1048576,
+  "mlp_bias": false,
+  "model_type": "spark2_5",
+  "num_attention_heads": 16,
+  "num_hidden_layers": 36,
+  "num_key_value_heads": 4,
+  "pad_token_id": 2,
+  "rms_norm_eps": 1e-06,
+  "rope_parameters": {
+    "full_attention": {
+      "partial_rotary_factor": 0.25,
+      "rope_theta": 5000000
+    },
+    "sliding_attention": {
+      "partial_rotary_factor": 1.0,
+      "rope_theta": 10000
+    }
+  },
+  "sliding_window": 512,
+  "tie_word_embeddings": true,
+  "transformers_version": "4.57.1",
+  "use_cache": true,
+  "vocab_size": 131072,
+  "quantization": {
+    "group_size": 64,
+    "bits": 4,
+    "mode": "affine",
+    "model.layers.0.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.0.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.0.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.0.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.0.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.1.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.1.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.1.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.1.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.1.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.2.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.2.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.2.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.2.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.2.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.3.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.3.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.3.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.3.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.3.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.4.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.4.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.4.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.4.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.4.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.5.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.5.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.5.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.5.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.5.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.6.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.6.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.6.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.6.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.6.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.7.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.7.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.7.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.7.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.7.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.8.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.8.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.8.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.8.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.8.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.9.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.9.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.9.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.9.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.9.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.10.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.10.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.10.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.10.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.10.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.11.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.11.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.11.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.11.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.11.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.12.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.12.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.12.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.12.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.12.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.13.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.13.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.13.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.13.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.13.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.14.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.14.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.14.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.14.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.14.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.15.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.15.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.15.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.15.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.15.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.16.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.16.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.16.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.16.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.16.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.17.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.17.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.17.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.17.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.17.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.18.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.18.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.18.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.18.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.18.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.19.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.19.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.19.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.19.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.19.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.20.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.20.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.20.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.20.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.20.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.21.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.21.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.21.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.21.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.21.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.22.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.22.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.22.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.22.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.22.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.23.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.23.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.23.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.23.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.23.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.24.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.24.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.24.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.24.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.24.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.25.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.25.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.25.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.25.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.25.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.26.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.26.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.26.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.26.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.26.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.27.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.27.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.27.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.27.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.27.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.28.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.28.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.28.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.28.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.28.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.29.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.29.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.29.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.29.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.29.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.30.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.30.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.30.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.30.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.30.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.31.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.31.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.31.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.31.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.31.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.32.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.32.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.32.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.32.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.32.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.33.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.33.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.33.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.33.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.33.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.34.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.34.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.34.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.34.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.34.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.35.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.35.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.35.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.35.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.35.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    }
+  },
+  "quantization_config": {
+    "group_size": 64,
+    "bits": 4,
+    "mode": "affine",
+    "model.layers.0.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.0.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.0.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.0.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.0.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.1.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.1.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.1.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.1.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.1.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.2.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.2.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.2.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.2.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.2.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.3.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.3.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.3.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.3.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.3.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.4.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.4.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.4.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.4.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.4.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.5.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.5.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.5.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.5.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.5.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.6.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.6.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.6.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.6.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.6.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.7.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.7.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.7.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.7.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.7.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.8.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.8.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.8.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.8.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.8.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.9.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.9.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.9.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.9.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.9.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.10.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.10.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.10.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.10.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.10.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.11.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.11.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.11.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.11.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.11.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.12.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.12.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.12.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.12.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.12.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.13.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.13.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.13.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.13.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.13.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.14.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.14.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.14.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.14.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.14.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.15.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.15.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.15.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.15.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.15.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.16.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.16.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.16.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.16.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.16.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.17.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.17.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.17.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.17.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.17.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.18.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.18.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.18.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.18.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.18.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.19.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.19.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.19.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.19.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.19.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.20.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.20.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.20.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.20.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.20.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.21.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.21.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.21.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.21.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.21.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.22.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.22.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.22.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.22.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.22.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.23.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.23.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.23.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.23.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.23.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.24.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.24.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.24.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.24.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.24.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.25.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.25.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.25.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.25.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.25.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.26.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.26.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.26.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.26.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.26.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.27.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.27.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.27.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.27.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.27.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.28.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.28.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.28.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.28.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.28.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.29.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.29.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.29.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.29.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.29.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.30.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.30.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.30.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.30.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.30.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.31.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.31.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.31.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.31.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.31.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.32.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.32.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.32.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.32.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.32.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.33.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.33.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.33.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.33.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.33.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.34.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.34.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.34.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.34.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.34.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.35.self_attn.q_k_v_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.35.self_attn.out_proj": {
+      "group_size": 64,
+      "bits": 6,
+      "mode": "affine"
+    },
+    "model.layers.35.mlp.gate_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.35.mlp.up_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    },
+    "model.layers.35.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4,
+      "mode": "affine"
+    }
+  }
+}
+
+===== generation_config.json =====
+{
+  "bos_token_id": 0,
+  "eos_token_id": 1,
+  "pad_token_id": 2,
+  "max_tokens": 1048576,
+  "temperature": 1.0,
+  "top_p": 0.95, 
+  "top_k": -1,
+  "repetition_penalty": 1.0,
+  "presence_penalty":0,
+  "frequency_penalty":0,
+  "do_sample": true,
+  "transformers_version": "4.57.1"
+}
+
+
+===== tokenizer_config.json =====
+{
+  "backend": "tokenizers",
+  "bos_token": "<｜start▁of▁sentence｜>",
+  "clean_up_tokenization_spaces": false,
+  "eos_token": "<｜end▁of▁sentence｜>",
+  "is_local": true,
+  "legacy": true,
+  "local_files_only": false,
+  "model_max_length": 131072,
+  "pad_token": "<｜▁pad▁｜>",
+  "sp_model_kwargs": {},
+  "tokenizer_class": "TokenizersBackend",
+  "tool_parser_type": "glm47",
+  "unk_token": "<unk>"
+}
+
+
+===== special_tokens_map.json =====
+{
+  "bos_token": "<｜start▁of▁sentence｜>",
+  "eos_token": "<｜end▁of▁sentence｜>",
+  "unk_token": "<unk>",
+  "pad_token": "<｜▁pad▁｜>"
+}
+
+===== chat_template.jinja =====
+{%- if not messages %}
+    {{- raise_exception('No messages provided.') }}
+{%- endif %}
+{%- set enable_thinking = enable_thinking | default(true) %}
+{%- set reasoning_instructions = '' %}
+{%- if enable_thinking is true %}
+    {%- set resolved_reasoning_effort = reasoning_effort|default('high') %}
+    {%- if resolved_reasoning_effort not in ('high', 'low') %}
+        {{- raise_exception('Unexpected reasoning effort ' ~ reasoning_effort ~ '. Supported types are high (default) and low.') }}
+    {%- endif %}
+    {%- if resolved_reasoning_effort == 'high' %}
+        {%- set reasoning_instructions = '\n`thinking_effort` guides on how much to think in your thinking channel (not including the response channel), supported values include `low` and `high`.\nNow the system is invoked with `thinking_effort=high`.' %}
+    {%- elif resolved_reasoning_effort == 'low' %}
+        {%- set reasoning_instructions = '\n`thinking_effort` guides on how much to think in your thinking channel (not including the response channel), supported values include `low` and `high`.\nNow the system is invoked with `thinking_effort=low`.' %}
+    {%- endif %}
+{%- endif %}
+
+{#- Render a string or a list of text blocks. -#}
+{%- macro render_content(content, context_name) %}
+    {%- if content is string %}
+        {{- content }}
+    {%- elif content is none or content is undefined %}
+        {{- '' }}
+    {%- elif content is iterable and content is not mapping %}
+        {%- for block in content %}
+            {%- if block.type == 'text' %}
+                {{- block.text }}
+            {%- else %}
+                {{- raise_exception('Unsupported ' ~ context_name ~ ' content block type: ' ~ (block.type | string)) }}
+            {%- endif %}
+        {%- endfor %}
+    {%- else %}
+        {{- raise_exception(context_name ~ ' content must be a string or a list of text blocks') }}
+    {%- endif %}
+{%- endmacro %}
+
+{#- Default system prompt -#}
+{%- set default_system = "you are a helpful assistant." + reasoning_instructions %}
+
+{#- The first message-level system is placed in the initial system block. -#}
+{%- set ns = namespace(initial_system='') %}
+{%- if messages[0].role == "system" %}
+    {%- set ns.initial_system = render_content(messages[0].content, 'system') %}
+{%- endif %}
+
+{#- System block -#}
+{{- '<｜start▁of▁sentence｜><|System|>' + '\n' + default_system }}
+{%- if tools %}
+    {{- '\n\n' + '## Tools' + '\n' + 'You have access to the following functions:' + '\n' + '<tools>' }}
+    {%- for tool in tools %}
+        {{- '\n' + (tool.function | tojson(separators=(',', ':'))) }}
+    {%- endfor %}
+    {{- '\n' + '</tools>' }}
+{%- endif %}
+{%- if ns.initial_system %}
+    {{- '\n\n' + ns.initial_system }}
+{%- endif %}
+{{- '<｜end▁of▁sentence｜>'}}
+
+{#- Conversation turns -#}
+{%- for message in messages %}
+    {%- if message.role == "system" %}
+        {#- The first system message was consumed by the initial block. -#}
+        {%- if not loop.first %}
+            {{- '<｜start▁of▁sentence｜><|System|>\n' + render_content(message.content, 'system') + '<｜end▁of▁sentence｜>' }}
+        {%- endif %}
+    {%- elif message.role == "user" %}
+        {{- '<｜start▁of▁sentence｜><|User|>' + render_content(message.content, 'user') + '<｜end▁of▁sentence｜>' }}
+    {%- elif message.role == "assistant" %}
+        {%- set assistant_content = render_content(message.content, 'assistant') %}
+        {%- if message.reasoning_content is defined and message.reasoning_content %}
+            {%- set reasoning_content = message.reasoning_content %}
+        {%- else %}
+            {%- set reasoning_content = '' %}
+        {%- endif %}
+        {{- '<｜start▁of▁sentence｜><|Bot|>'}}
+        {%- if reasoning_content %}
+            {{- '<think>' + reasoning_content + '</think>'}}
+        {%- else %}
+            {{- '</think>' }}
+        {%- endif %}
+        {%- if assistant_content %}
+            {{- assistant_content }}
+        {%- endif %}
+        {%- if message.tool_calls is defined and message.tool_calls is not none %}
+            {%- for tool_call in message.tool_calls %}
+                {%- if tool_call.function.arguments is not mapping %}
+                    {{- raise_exception('tool_call.function.arguments must be a dictionary; normalize JSON strings before apply_chat_template') }}
+                {%- endif %}
+                {%- set args = tool_call.function.arguments %}
+                {{- '<tool_call>' + tool_call.function.name }}
+                {%- for k, v in args.items() %}
+                    {{- '<arg_key>' ~ k ~ '</arg_key><arg_value>' ~ (v if v is string else v | tojson(separators=(', ', ': '))) ~ '</arg_value>' }}
+                {%- endfor %}
+                {{- '</tool_call>' }}
+            {%- endfor %}
+        {%- endif %}
+        {{- '<｜end▁of▁sentence｜>' }}
+    {%- elif message.role == "tool" %}
+        {%- if loop.previtem is undefined or loop.previtem.role != "tool" %}
+            {{- '<｜start▁of▁sentence｜><|Tool|>' }}
+        {%- endif %}
+        {{- '<tool_response>' ~ message.content ~ '</tool_response>' }}
+        {%- if loop.nextitem is undefined or loop.nextitem.role != "tool" %}
+            {{- '<｜end▁of▁sentence｜>' }}
+        {%- endif %}
+    {%- else %}
+        {{- raise_exception('Unsupported message role: ' ~ message.role) }}
+    {%- endif %}
+{%- endfor %}
+
+{#- Generation prompt -#}
+{%- if add_generation_prompt %}
+    {{- '<｜start▁of▁sentence｜><|Bot|>' }}
+    {%- if enable_thinking is defined and enable_thinking %}
+        {{- '<think>' }}
+    {%- endif %}
+    {%- if enable_thinking is defined and not enable_thinking %}
+        {{- '</think>' }}
+    {%- endif %}
+{%- endif %}
+
+
+===== configuration_spark.py =====
+# coding=utf-8
+# Copyright 2026 The XHToken team and the HuggingFace Inc. team. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+from transformers import PretrainedConfig
+
+
+class Spark2_5Config(PretrainedConfig):
+    model_type = "spark2_5"
+    keys_to_ignore_at_inference = ["past_key_values"]
+
+    base_model_tp_plan = {
+        "layers.*.self_attn.q_k_v_proj": "colwise",
+        "layers.*.self_attn.g_proj": "colwise",
+        "layers.*.self_attn.out_proj": "rowwise",
+        "layers.*.mlp.gate_proj": "colwise",
+        "layers.*.mlp.up_proj": "colwise",
+        "layers.*.mlp.down_proj": "rowwise",
+    }
+    base_model_pp_plan = {
+        "embedding": (["input_ids"], ["inputs_embeds"]),
+        "layers": (["hidden_states", "attention_mask"], ["hidden_states"]),
+        "norm": (["hidden_states"], ["hidden_states"]),
+    }
+
+    def __init__(
+        self,
+        vocab_size=32000,
+        hidden_size=4096,
+        intermediate_size=11008,
+        num_hidden_layers=32,
+        num_attention_heads=32,
+        num_key_value_heads=None,
+        hidden_act="gelu",
+        max_position_embeddings=2048,
+        initializer_range=0.02,
+        rms_norm_eps=1e-6,
+        use_cache=True,
+        pad_token_id=None,
+        bos_token_id=1,
+        eos_token_id=2,
+        tie_word_embeddings=False,
+        rope_parameters=None,
+        attention_bias=False,
+        attention_dropout=0.0,
+        mlp_bias=False,
+        head_dim=None,
+        headwise_attn_output_gate=False,
+        gate_attn_act_mode="sigmoid",
+        sliding_window=None,
+        layer_types=None,
+        **kwargs,
+    ):
+        self.vocab_size = vocab_size
+        self.max_position_embeddings = max_position_embeddings
+        self.hidden_size = hidden_size
+        self.intermediate_size = intermediate_size
+        self.num_hidden_layers = num_hidden_layers
+        self.num_attention_heads = num_attention_heads
+
+        if num_key_value_heads is None:
+            num_key_value_heads = num_attention_heads
+        if num_attention_heads % num_key_value_heads != 0:
+            raise ValueError(
+                f"num_attention_heads ({num_attention_heads}) must be divisible by num_key_value_heads ({num_key_value_heads})"
+            )
+        self.num_key_value_heads = num_key_value_heads
+
+        self.hidden_act = hidden_act
+        self.initializer_range = initializer_range
+        self.rms_norm_eps = rms_norm_eps
+        self.use_cache = use_cache
+        self.attention_bias = attention_bias
+        self.attention_dropout = attention_dropout
+        self.mlp_bias = mlp_bias
+        self.head_dim = head_dim if head_dim is not None else self.hidden_size // self.num_attention_heads
+        self.headwise_attn_output_gate = headwise_attn_output_gate
+        self.gate_attn_act_mode = gate_attn_act_mode
+        self.sliding_window = sliding_window
+        self.rope_parameters = rope_parameters
+
+        if layer_types is None:
+            layer_types = ["full_attention"] * num_hidden_layers
+        if len(layer_types) != num_hidden_layers:
+            raise ValueError(
+                f"layer_types length ({len(layer_types)}) must match num_hidden_layers ({num_hidden_layers})"
+            )
+        self.layer_types = layer_types
+
+        super().__init__(
+            pad_token_id=pad_token_id,
+            bos_token_id=bos_token_id,
+            eos_token_id=eos_token_id,
+            tie_word_embeddings=tie_word_embeddings,
+            **kwargs,
+        )
+
+    def get_rope_theta(self, layer_type):
+        params = self.rope_parameters.get(layer_type, {})
+        return params.get("rope_theta", 10000)
+
+    def get_partial_rotary_factor(self, layer_type):
+        params = self.rope_parameters.get(layer_type, {})
+        return params.get("partial_rotary_factor", 1.0)
+
+
+__all__ = ["Spark2_5Config"]
+
+
+===== modeling_spark.py =====
+# modeling_spark.py — Custom MLX port of transformers-style Spark2_5
+# with three runtime patches:
+#   (a) Hadamard weight rotation applied to activations before q_k_v_proj,
+#       gate_proj, up_proj (matches rotated weights baked into safetensors)
+#   (b) TurboQuant KV-cache rotation for full-attention layers: keys stored
+#       in rotated frame, queries rotated to match; attention scores unchanged
+#   (c) YaRN RoPE scaling for full-attention layers
+
+import math
+from dataclasses import dataclass, field
+from typing import Any, Dict, List, Optional
+
+import mlx.core as mx
+import mlx.nn as nn
+
+from mlx_lm.models.base import BaseModelArgs, create_attention_mask, scaled_dot_product_attention
+from mlx_lm.models.cache import KVCache, RotatingKVCache
+from mlx_lm.models.rope_utils import YarnRoPE
+
+
+# ── Hadamard rotation matrix (64×64 block) ──────────────────────────────
+# hidden_size = 2560 = 40 × 64; head_dim = 256 = 4 × 64
+BLOCK = 64
+
+
+def _build_hadamard(d: int) -> mx.array:
+    """Build a d×d Hadamard matrix (d must be a power of two)."""
+    H = mx.array([[1.0]])
+    while H.shape[0] < d:
+        H_top = mx.concatenate([H, H], axis=1)
+        H_bottom = mx.concatenate([H, -H], axis=1)
+        H = mx.concatenate([H_top, H_bottom], axis=0)
+    return H / mx.sqrt(mx.array(d, dtype=mx.float32))
+
+
+_H = _build_hadamard(BLOCK)  # [64, 64]
+
+
+def rotate_last_dim(x: mx.array, H: mx.array) -> mx.array:
+    """Apply blockwise Hadamard rotation to the last dimension of x.
+
+    Reshapes [..., in_features] → [..., n_blocks, BLOCK], applies
+    x @ Hᵀ per block, then reshapes back.  The rotation is orthogonal so
+    it preserves norms and (when applied to both Q and K) leaves attention
+    scores unchanged.
+    """
+    orig_dtype = x.dtype
+    *leading, in_f = x.shape
+    n_blocks = in_f // BLOCK
+    x = x.reshape(*leading, n_blocks, BLOCK)
+    x_rot = mx.matmul(x, H.T)
+    return x_rot.reshape(*leading, in_f).astype(orig_dtype)
+
+
+# ── ModelArgs ────────────────────────────────────────────────────────────
+
+@dataclass
+class ModelArgs(BaseModelArgs):
+    model_type: str = "spark2_5"
+    hidden_size: int = 2560
+    intermediate_size: int = 10240
+    num_hidden_layers: int = 36
+    num_attention_heads: int = 16
+    num_key_value_heads: int = 4
+    head_dim: int = 256
+    vocab_size: int = 131072
+    sliding_window: int = 512
+    rope_parameters: Dict[str, Dict[str, Any]] = field(default_factory=dict)
+    layer_types: Optional[List[str]] = None
+    rms_norm_eps: float = 1e-6
+    max_position_embeddings: int = 1048576
+    attention_bias: bool = False
+    mlp_bias: bool = False
+    hidden_act: str = "gelu"
+    gate_attn_act_mode: str = "sigmoid"
+    headwise_attn_output_gate: bool = True
+    tie_word_embeddings: bool = True
+
+    # Patch flags
+    use_weight_rotation: bool = True
+    use_kv_cache_rotation: bool = True
+    use_yarn_rope: bool = True
+    yarn_factor: float = 4.0
+    yarn_original_max_position_embeddings: int = 262144
+
+    def __post_init__(self):
+        if self.layer_types is None:
+            pattern = ["sliding_attention"] * 3 + ["full_attention"]
+            self.layer_types = [
+                pattern[i % len(pattern)] for i in range(self.num_hidden_layers)
+            ]
+        if len(self.layer_types) != self.num_hidden_layers:
+            raise ValueError(
+                f"layer_types length must match num_hidden_layers: "
+                f"{len(self.layer_types)} != {self.num_hidden_layers}"
+            )
+        unsupported = set(self.layer_types) - {"sliding_attention", "full_attention"}
+        if unsupported:
+            raise ValueError(f"Unsupported layer types: {sorted(unsupported)}")
+        missing_rope = set(self.layer_types) - set(self.rope_parameters)
+        if missing_rope:
+            raise ValueError(
+                f"Missing RoPE parameters for layer types: {sorted(missing_rope)}"
+            )
+        if self.num_attention_heads % self.num_key_value_heads:
+            raise ValueError(
+                "num_attention_heads must be divisible by num_key_value_heads"
+            )
+        if self.num_attention_heads * self.head_dim <= 0:
+            raise ValueError("num_attention_heads * head_dim must be positive")
+        for layer_type in set(self.layer_types):
+            factor = float(
+                self.rope_parameters[layer_type].get("partial_rotary_factor", 1.0)
+            )
+            dims = int(self.head_dim * factor)
+            if dims <= 0 or dims > self.head_dim or dims % 2:
+                raise ValueError(
+                    f"Invalid rotary dimension {dims} for {layer_type} "
+                    f"with head_dim={self.head_dim}"
+                )
+        if self.hidden_act != "gelu":
+            raise ValueError(f"Spark2_5 requires GELU, got {self.hidden_act!r}")
+        if not self.headwise_attn_output_gate:
+            raise ValueError("Spark2_5 requires head-wise attention output gates")
+        if self.gate_attn_act_mode != "sigmoid":
+            raise ValueError(
+                f"Spark2_5 requires sigmoid attention gates, got "
+                f"{self.gate_attn_act_mode!r}"
+            )
+
+
+# ── Attention ────────────────────────────────────────────────────────────
+
+class Attention(nn.Module):
+    def __init__(self, args: ModelArgs, layer_idx: int):
+        super().__init__()
+        self.n_heads = args.num_attention_heads
+        self.n_kv_heads = args.num_key_value_heads
+        self.head_dim = args.head_dim
+        self.scale = self.head_dim ** -0.5
+        self.layer_idx = layer_idx
+
+        layer_type = args.layer_types[layer_idx]
+        self.is_sliding = layer_type == "sliding_attention"
+        self.is_full = not self.is_sliding
+
+        self._use_weight_rotation = args.use_weight_rotation
+        self._use_kv_cache_rotation = args.use_kv_cache_rotation
+
+        q_size = self.n_heads * self.head_dim
+        kv_size = self.n_kv_heads * self.head_dim
+        self.q_size = q_size
+        self.kv_size = kv_size
+
+        self.q_k_v_proj = nn.Linear(
+            args.hidden_size, q_size + 2 * kv_size, bias=args.attention_bias
+        )
+        self.g_proj = nn.Linear(
+            args.hidden_size, self.n_heads, bias=args.attention_bias
+        )
+        self.out_proj = nn.Linear(
+            q_size, args.hidden_size, bias=args.attention_bias
+        )
+
+        # Patch (c): YaRN RoPE for full-attention layers; standard RoPE for sliding
+        rope_params = args.rope_parameters[layer_type]
+        base = float(rope_params.get("rope_theta", 10000.0))
+        prf = float(rope_params.get("partial_rotary_factor", 1.0))
+        if self.is_full and args.use_yarn_rope:
+            self.rope = YarnRoPE(
+                dims=int(self.head_dim * prf),
+                traditional=False,
+                max_position_embeddings=args.max_position_embeddings,
+                base=base,
+                scaling_factor=args.yarn_factor,
+                original_max_position_embeddings=args.yarn_original_max_position_embeddings,
+            )
+        else:
+            dims = int(self.head_dim * prf)
+            self.rope = nn.RoPE(dims, traditional=False, base=base)
+
+    def __call__(self, x, mask=None, cache=None):
+        batch_size, sequence_length, _ = x.shape
+
+        # Patch (a): Hadamard weight rotation on activations before q_k_v_proj.
+        # The weights were rotated as W @ Hᵀ on their input dimension, so we
+        # apply H to the hidden states before the projection to restore
+        # equivalence: (W @ Hᵀ) (H x) = W x.
+        # ALL layers (sliding + full) had their weights rotated, so apply to all.
+        # Save the original x for g_proj, which was NOT rotated.
+        orig_x = x
+        if self._use_weight_rotation:
+            x = rotate_last_dim(x, _H)
+
+        qkv = self.q_k_v_proj(x)
+        queries, keys, values = mx.split(
+            qkv, [self.q_size, self.q_size + self.kv_size], axis=-1
+        )
+
+        queries = queries.reshape(
+            batch_size, sequence_length, self.n_heads, self.head_dim
+        ).transpose(0, 2, 1, 3)
+        keys = keys.reshape(
+            batch_size, sequence_length, self.n_kv_heads, self.head_dim
+        ).transpose(0, 2, 1, 3)
+        values = values.reshape(
+            batch_size, sequence_length, self.n_kv_heads, self.head_dim
+        ).transpose(0, 2, 1, 3)
+
+        queries = mx.contiguous(queries)
+        keys = mx.contiguous(keys)
+        values = mx.contiguous(values)
+
+        # RoPE (applied before KV-cache rotation so both Q and K are
+        # position-encoded before being moved into the rotated frame)
+        offset = cache.offset if cache is not None else 0
+        queries = self.rope(queries, offset=offset)
+        keys = self.rope(keys, offset=offset)
+
+        # Patch (b): KV-cache rotation.  Store keys in the Hadamard-rotated
+        # frame and rotate queries to match.  Since H is orthogonal,
+        # (H q)ᵀ (H k) = qᵀ k, so attention scores are identical to the
+        # unrotated computation.  Sliding-window layers skip this.
+        if self.is_full and self._use_kv_cache_rotation:
+            queries = rotate_last_dim(queries, _H)
+            keys = rotate_last_dim(keys, _H)
+
+        if cache is not None:
+            keys, values = cache.update_and_fetch(keys, values)
+
+        output = scaled_dot_product_attention(
+            queries, keys, values, cache=cache, scale=self.scale, mask=mask,
+        )
+        output = mx.contiguous(output.transpose(0, 2, 1, 3))
+
+        gate = mx.sigmoid(self.g_proj(orig_x).astype(mx.float32)).astype(output.dtype)
+        output = output * gate[..., None]
+
+        return self.out_proj(output.reshape(batch_size, sequence_length, -1))
+
+
+# ── MLP ──────────────────────────────────────────────────────────────────
+
+class MLP(nn.Module):
+    def __init__(self, args: ModelArgs):
+        super().__init__()
+        self.gate_proj = nn.Linear(
+            args.hidden_size, args.intermediate_size, bias=args.mlp_bias
+        )
+        self.up_proj = nn.Linear(
+            args.hidden_size, args.intermediate_size, bias=args.mlp_bias
+        )
+        self.down_proj = nn.Linear(
+            args.intermediate_size, args.hidden_size, bias=args.mlp_bias
+        )
+        self._use_weight_rotation = args.use_weight_rotation
+
+    def __call__(self, x: mx.array) -> mx.array:
+        # Patch (a): Hadamard weight rotation on activations before gate_proj
+        # and up_proj.  down_proj is intentionally NOT rotated: its input is
+        # the MLP intermediate (already in the correct basis since gate/up
+        # produce the same output as unrotated weights), and its output feeds
+        # the residual stream which must not be rotated.
+        if self._use_weight_rotation:
+            x = rotate_last_dim(x, _H)
+        return self.down_proj(nn.gelu(self.gate_proj(x)) * self.up_proj(x))
+
+
+# ── Transformer block ────────────────────────────────────────────────────
+
+class TransformerBlock(nn.Module):
+    def __init__(self, args: ModelArgs, layer_idx: int):
+        super().__init__()
+        self.self_attn = Attention(args, layer_idx)
+        self.mlp = MLP(args)
+        self.input_layernorm = nn.RMSNorm(args.hidden_size, eps=args.rms_norm_eps)
+        self.post_attention_layernorm = nn.RMSNorm(
+            args.hidden_size, eps=args.rms_norm_eps
+        )
+
+    @property
+    def is_sliding(self) -> bool:
+        return self.self_attn.is_sliding
+
+    def __call__(self, x, mask=None, cache=None):
+        attention_output = self.self_attn(self.input_layernorm(x), mask, cache)
+        hidden_states = x + attention_output
+        mlp_output = self.mlp(self.post_attention_layernorm(hidden_states))
+        return hidden_states + mlp_output
+
+
+# ── Model ────────────────────────────────────────────────────────────────
+
+class Spark2_5Model(nn.Module):
+    def __init__(self, args: ModelArgs):
+        super().__init__()
+        self.args = args
+        self.embedding = nn.Embedding(args.vocab_size, args.hidden_size)
+        self.layers = [
+            TransformerBlock(args, layer_idx)
+            for layer_idx in range(args.num_hidden_layers)
+        ]
+        self.norm = nn.RMSNorm(args.hidden_size, eps=args.rms_norm_eps)
+
+        self._first_full = next(
+            (idx for idx, lt in enumerate(args.layer_types) if lt == "full_attention"),
+            None,
+        )
+        self._first_sliding = next(
+            (idx for idx, lt in enumerate(args.layer_types) if lt == "sliding_attention"),
+            None,
+        )
+
+    def __call__(self, inputs, cache=None, input_embeddings=None):
+        hidden_states = (
+            input_embeddings if input_embeddings is not None else self.embedding(inputs)
+        )
+
+        if cache is None:
+            cache = [None] * len(self.layers)
+
+        full_mask = None
+        if self._first_full is not None:
+            full_mask = create_attention_mask(hidden_states, cache[self._first_full])
+        sliding_mask = None
+        if self._first_sliding is not None:
+            sliding_mask = create_attention_mask(
+                hidden_states,
+                cache[self._first_sliding],
+                window_size=self.args.sliding_window,
+            )
+
+        for layer, layer_cache in zip(self.layers, cache):
+            mask = sliding_mask if layer.is_sliding else full_mask
+            hidden_states = layer(hidden_states, mask, layer_cache)
+
+        return self.norm(hidden_states)
+
+
+class Model(nn.Module):
+    def __init__(self, args: ModelArgs):
+        super().__init__()
+        self.args = args
+        self.model_type = args.model_type
+        self.model = Spark2_5Model(args)
+        if not args.tie_word_embeddings:
+            self.lm_head = nn.Linear(args.hidden_size, args.vocab_size, bias=False)
+
+    def __call__(self, inputs, cache=None, input_embeddings=None):
+        hidden_states = self.model(inputs, cache, input_embeddings)
+        if self.args.tie_word_embeddings:
+            return self.model.embedding.as_linear(hidden_states)
+        return self.lm_head(hidden_states)
+
+    @property
+    def layers(self):
+        return self.model.layers
+
+    def make_cache(self):
+        return [
+            (
+                RotatingKVCache(max_size=self.args.sliding_window, keep=0)
+                if layer.is_sliding
+                else KVCache()
+            )
+            for layer in self.model.layers
+        ]
+
+    @property
+    def quant_predicate(self):
+        # The head-gate is a tiny per-head gating projection; keep it at
+        # source precision to preserve sigmoid gate values.
+        def predicate(path, _):
+            return not path.endswith("self_attn.g_proj")
+
+        return predicate
+
+    def sanitize(self, weights):
+        # Some MLX conversions rename the embedding to embed_tokens while the
+        # Hugging Face checkpoint ships it as model.embedding.weight.
+        if (
+            "model.embed_tokens.weight" in weights
+            and "model.embedding.weight" not in weights
+        ):
+            weights["model.embedding.weight"] = weights.pop("model.embed_tokens.weight")
+        if self.args.tie_word_embeddings:
+            weights.pop("lm_head.weight", None)
+        # Drop the serialized RoPE inverse-frequency buffer some conversions ship.
+        return {
+            name: value
+            for name, value in weights.items()
+            if "rotary_emb.inv_freq" not in name
+        }
+
+
+__all__ = ["ModelArgs", "Model", "Spark2_5Model"]
