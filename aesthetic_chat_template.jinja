@@ -1,0 +1,570 @@
+{%- set template_version = "qwen3.5-3.6-kat-qwopus-agentworld-ornith-aesthetic-v5-mastercraft" %}
+{#- =========================================================================================
+    QWEN HYBRID AGENTIC & AESTHETIC CHAT TEMPLATE (V5 Mastercraft)
+    Supported tool formats:
+      - 'qwen3_coder' (default): Official XML syntax (<function=...><parameter=...>)
+      - 'json': Official Qwen / Qwopus JSON syntax (<tool_call>{"name":...,"arguments":...}</tool_call>)
+    Agentic Capabilities:
+      - Trajectory-aware intent extraction (evaluates latest user query turn)
+      - Anti-loop circuit breaker (3-tier failure escalation)
+      - Multi-schema argument normalization (.arguments, .parameters, .input)
+      - Non-destructive JSON response clipping protection
+      - Context-efficient dynamic reasoning pruning
+    Aesthetic & SVG Capabilities:
+      - Complete architectural design systems: Bento Grid, Luxury Obsidian, Cyberpunk, 
+        Neo-Brutalism, Editorial Studio, and Isometric SVG Artistry
+      - Pure Jinja2 namespace mutation (zero scoping leaks)
+      - Strict Anti-Laziness / Anti-Truncation guardrails
+      - High-DPI Canvas scaling and standalone SVG namespace enforcement
+   ========================================================================================= -#}
+
+{%- set _tool_format = tool_call_format if tool_call_format is defined else 'qwen3_coder' %}
+{%- set enable_thinking = (enable_thinking not in (false, 'false', 'False', 0, '0', 'off', 'none')) if enable_thinking is defined else true %}
+{%- set auto_disable_thinking_with_tools = (auto_disable_thinking_with_tools in (true, 'true', 'True', 1, '1', 'on')) if auto_disable_thinking_with_tools is defined else false %}
+
+{%- if preserve_reasoning is defined and preserve_reasoning is not none %}
+    {%- set _preserve_thinking = (preserve_reasoning not in (false, 'false', 'False', 0, '0', 'off', 'none')) %}
+{%- elif preserve_thinking is defined and preserve_thinking is not none %}
+    {%- set _preserve_thinking = (preserve_thinking not in (false, 'false', 'False', 0, '0', 'off', 'none')) %}
+{%- else %}
+    {%- set _preserve_thinking = true %}
+{%- endif %}
+
+{%- set max_tool_arg_chars = (max_tool_arg_chars | int) if (max_tool_arg_chars is defined and max_tool_arg_chars is not none) else 0 %}
+{%- set max_tool_response_chars = (max_tool_response_chars | int) if (max_tool_response_chars is defined and max_tool_response_chars is not none) else 0 %}
+{%- set _has_tools = (tools is defined and tools and tools is iterable and tools is not mapping) %}
+
+{# --- Dynamic Reasoning Effort Mapping --- #}
+{%- set _effort_raw = (reasoning_effort | string | lower) if reasoning_effort is defined and reasoning_effort is not none else 'medium' %}
+{%- set _initial_thinking = enable_thinking %}
+{%- set _initial_effort = 'medium' %}
+{%- if _effort_raw in ('none', 'off') %}
+    {%- set _initial_thinking = false %}
+    {%- set _initial_effort = 'medium' %}
+{%- elif _effort_raw in ('minimal', 'low') %}
+    {%- set _initial_effort = 'low' %}
+{%- elif _effort_raw in ('high', 'xhigh', 'max', 'ultracode', 'extreme', 'deep', 'long') %}
+    {%- set _initial_thinking = true %}
+    {%- set _initial_effort = 'xhigh' %}
+{%- else %}
+    {%- set _initial_effort = 'medium' %}
+{%- endif %}
+
+{%- set ns_state = namespace(thinking=_initial_thinking, effort=_initial_effort) %}
+{%- if auto_disable_thinking_with_tools and _has_tools %}
+    {%- set ns_state.thinking = false %}
+{%- endif %}
+
+{# --- Macro: Content Rendering (Enforcing Pure-Text CausalLM) --- #}
+{%- macro render_content(content, is_system_content=false) %}
+    {%- if content is string %}
+        {{- content }}
+    {%- elif content is iterable and content is not mapping %}
+        {%- for item in content %}
+            {%- if item is mapping %}
+                {%- if item.type == 'image' or 'image' in item or 'image_url' in item %}
+                    {{- raise_exception('This model is a pure text CausalLM (vision tower removed). Image inputs are not supported.') }}
+                {%- elif item.type == 'video' or 'video' in item %}
+                    {{- raise_exception('This model is a pure text CausalLM (vision tower removed). Video inputs are not supported.') }}
+                {%- elif 'text' in item %}
+                    {{- (item.text | string) if item.text is not none else '' }}
+                {%- elif 'content' in item and item.content is string %}
+                    {{- item.content }}
+                {%- else %}
+                    {{- item | tojson }}
+                {%- endif %}
+            {%- else %}
+                {{- item | string }}
+            {%- endif %}
+        {%- endfor %}
+    {%- elif content is none or content is undefined %}
+        {{- '' }}
+    {%- else %}
+        {{- raise_exception('Unexpected content type.') }}
+    {%- endif %}
+{%- endmacro %}
+
+{# --- Macro: Robust Directive Sanitizer (Using Mutable Namespace) --- #}
+{%- macro clean_directives(raw_text) %}
+    {%- set ns_clean = namespace(val=(raw_text | string)) %}
+    {%- set _tokens = [
+        '<|think_off|>', '<|think_on|>', '<|think_xhigh|>', '<|think_high|>', 
+        '<|think_ultracode|>', '<|think_extreme|>', '<|think_max|>', '<|think_deep|>', 
+        '<|think_long|>', '<|think_medium|>', '<|think_low|>', '<|think_minimal|>',
+        '<|style_off|>', '<|style_luxury|>', '<|style_cyberpunk|>', '<|style_editorial|>',
+        '<|style_neobrutalism|>', '<|style_bento|>', '<|svg_artistry|>', '<|svg_masterpiece|>',
+        '<|svg_isometric|>', '<|style_exquisite|>', '<|style_craft|>'
+    ] %}
+    {%- for tok in _tokens %}
+        {%- if tok in ns_clean.val %}
+            {%- set ns_clean.val = ns_clean.val.split(tok) | join('') %}
+        {%- endif %}
+    {%- endfor %}
+    {{- ns_clean.val | trim }}
+{%- endmacro %}
+
+{%- if not messages %}
+    {{- raise_exception('No messages provided.') }}
+{%- endif %}
+
+{# --- Trajectory Pre-Pass: Head Extraction & Root User Query Indexing --- #}
+{%- set head = namespace(count=0, seen_non_system=false) %}
+{%- for message in messages %}
+    {%- set _is_sys = (message.role == 'system' or message.role == 'developer') %}
+    {%- if _is_sys and not head.seen_non_system %}
+        {%- set head.count = head.count + 1 %}
+    {%- else %}
+        {%- set head.seen_non_system = true %}
+    {%- endif %}
+{%- endfor %}
+
+{%- set _msgs = messages[head.count:] %}
+{%- set ns_traj = namespace(found_query=false, last_query_index=0, last_user_content='') %}
+{%- for message in _msgs[::-1] %}
+    {%- set index = (_msgs | length - 1) - loop.index0 %}
+    {%- if not ns_traj.found_query and message.role == 'user' %}
+        {%- set _rc = render_content(message.content) | trim %}
+        {%- if not (_rc.startswith('<tool_response>') and _rc.endswith('</tool_response>')) %}
+            {%- set ns_traj.found_query = true %}
+            {%- set ns_traj.last_query_index = index %}
+            {%- set ns_traj.last_user_content = _rc %}
+        {%- endif %}
+    {%- endif %}
+{%- endfor %}
+{%- if not ns_traj.found_query and _msgs | length > 0 %}
+    {%- set ns_traj.last_query_index = (_msgs | length - 1) %}
+    {%- set ns_traj.last_user_content = render_content(_msgs[-1].content) | trim %}
+{%- endif %}
+
+{# --- Aesthetic Engine State & Scanning --- #}
+{%- set _aesthetic_default = (enable_aesthetic_craft not in (false, 'false', 'False', 0, '0', 'off')) if enable_aesthetic_craft is defined else true %}
+{%- set ns_aesthetic = namespace(
+    active=false,
+    has_explicit_tag=false,
+    mode=(aesthetic_preset if (aesthetic_preset is defined and aesthetic_preset) else 'exquisite'),
+    is_svg=false
+) %}
+
+{# Global Directive Scan (User / System overrides) #}
+{%- for msg in messages %}
+    {%- if msg.role in ('system', 'developer', 'user') %}
+        {%- set _t = render_content(msg.content) %}
+        {%- if '<|think_off|>' in _t %}
+            {%- set ns_state.thinking = false %}
+        {%- elif '<|think_on|>' in _t %}
+            {%- set ns_state.thinking = true %}
+        {%- elif '<|think_xhigh|>' in _t or '<|think_high|>' in _t or '<|think_ultracode|>' in _t or '<|think_extreme|>' in _t or '<|think_max|>' in _t or '<|think_deep|>' in _t or '<|think_long|>' in _t %}
+            {%- set ns_state.thinking = true %}
+            {%- set ns_state.effort = 'xhigh' %}
+        {%- elif '<|think_low|>' in _t or '<|think_minimal|>' in _t %}
+            {%- set ns_state.thinking = true %}
+            {%- set ns_state.effort = 'low' %}
+        {%- elif '<|think_medium|>' in _t %}
+            {%- set ns_state.thinking = true %}
+            {%- set ns_state.effort = 'medium' %}
+        {%- endif %}
+
+        {%- if '<|style_off|>' in _t %}
+            {%- set ns_aesthetic.active = false %}
+            {%- set ns_aesthetic.has_explicit_tag = true %}
+        {%- elif '<|style_luxury|>' in _t %}
+            {%- set ns_aesthetic.active = true %}
+            {%- set ns_aesthetic.has_explicit_tag = true %}
+            {%- set ns_aesthetic.mode = 'luxury' %}
+        {%- elif '<|style_cyberpunk|>' in _t %}
+            {%- set ns_aesthetic.active = true %}
+            {%- set ns_aesthetic.has_explicit_tag = true %}
+            {%- set ns_aesthetic.mode = 'cyberpunk' %}
+        {%- elif '<|style_editorial|>' in _t %}
+            {%- set ns_aesthetic.active = true %}
+            {%- set ns_aesthetic.has_explicit_tag = true %}
+            {%- set ns_aesthetic.mode = 'editorial' %}
+        {%- elif '<|style_neobrutalism|>' in _t %}
+            {%- set ns_aesthetic.active = true %}
+            {%- set ns_aesthetic.has_explicit_tag = true %}
+            {%- set ns_aesthetic.mode = 'neobrutalism' %}
+        {%- elif '<|style_bento|>' in _t %}
+            {%- set ns_aesthetic.active = true %}
+            {%- set ns_aesthetic.has_explicit_tag = true %}
+            {%- set ns_aesthetic.mode = 'bento' %}
+        {%- elif '<|svg_isometric|>' in _t %}
+            {%- set ns_aesthetic.active = true %}
+            {%- set ns_aesthetic.has_explicit_tag = true %}
+            {%- set ns_aesthetic.is_svg = true %}
+            {%- set ns_aesthetic.mode = 'svg_isometric' %}
+        {%- elif '<|svg_artistry|>' in _t or '<|svg_masterpiece|>' in _t %}
+            {%- set ns_aesthetic.active = true %}
+            {%- set ns_aesthetic.has_explicit_tag = true %}
+            {%- set ns_aesthetic.is_svg = true %}
+            {%- set ns_aesthetic.mode = 'svg_artistry' %}
+        {%- elif '<|style_exquisite|>' in _t or '<|style_craft|>' in _t %}
+            {%- set ns_aesthetic.active = true %}
+            {%- set ns_aesthetic.has_explicit_tag = true %}
+            {%- set ns_aesthetic.mode = 'exquisite' %}
+        {%- endif %}
+    {%- endif %}
+{%- endfor %}
+
+{# Trajectory-Aware Intent Heuristic (Evaluates the CURRENT active user turn to prevent multi-turn pollution) #}
+{%- if not ns_aesthetic.has_explicit_tag and _aesthetic_default and ns_traj.last_user_content %}
+    {%- set _luc = ns_traj.last_user_content | lower %}
+    {%- if 'svg' in _luc or 'vector graphic' in _luc or 'vector illustration' in _luc or 'scalable vector' in _luc or 'icon set' in _luc %}
+        {%- set ns_aesthetic.active = true %}
+        {%- set ns_aesthetic.is_svg = true %}
+        {%- if 'isometric' in _luc %}
+            {%- set ns_aesthetic.mode = 'svg_isometric' %}
+        {%- else %}
+            {%- set ns_aesthetic.mode = 'svg_artistry' %}
+        {%- endif %}
+    {%- elif 'html' in _luc or 'css' in _luc or 'landing page' in _luc or 'dashboard' in _luc or 'ui component' in _luc or 'web page' in _luc or 'frontend' in _luc or 'canvas' in _luc or 'hero section' in _luc or 'web app' in _luc %}
+        {%- set ns_aesthetic.active = true %}
+        {%- if 'bento' in _luc %}
+            {%- set ns_aesthetic.mode = 'bento' %}
+        {%- elif 'brutalis' in _luc %}
+            {%- set ns_aesthetic.mode = 'neobrutalism' %}
+        {%- elif 'luxury' in _luc or 'elegant' in _luc %}
+            {%- set ns_aesthetic.mode = 'luxury' %}
+        {%- elif 'cyber' in _luc or 'neon' in _luc or 'hud' in _luc %}
+            {%- set ns_aesthetic.mode = 'cyberpunk' %}
+        {%- endif %}
+    {%- endif %}
+{%- endif %}
+
+{# --- System Instructions Assembly --- #}
+{%- set reasoning_instructions = '' %}
+{%- if ns_state.thinking %}
+    {%- if ns_state.effort == 'xhigh' %}
+        {%- set reasoning_instructions = 'Reasoning effort is set to xhigh. Please think rigorously through the task, explore alternative hypotheses, validate edge cases, and prioritize architectural soundness, consistency, and correctness in the final answer.' %}
+    {%- elif ns_state.effort == 'low' %}
+        {%- set reasoning_instructions = 'Reasoning effort is set to low. Keep your thinking concise, focused, and move directly to execution or tool calls without unnecessary elaboration.' %}
+    {%- endif %}
+{%- endif %}
+
+{%- set aesthetic_system_prompt = '' %}
+{%- if ns_aesthetic.active %}
+    {%- set _style_palette = '' %}
+    {%- if ns_aesthetic.mode == 'luxury' %}
+        {%- set _style_palette = 'Aesthetic Archetype: Haute Luxury & Elevated Minimalist. Palette: Deep obsidian surfaces (#08090C, #111319), subtle warm gold/champagne gradients (linear-gradient(135deg, #F4D068 0%, #AA771C 100%)), 1px hairline translucent borders (rgba(255,255,255,0.07)), high-contrast editorial serif display typography, and diffuse atmospheric glow.' %}
+    {%- elif ns_aesthetic.mode == 'cyberpunk' %}
+        {%- set _style_palette = 'Aesthetic Archetype: Neo-Futurist Cyberpunk / Tactical HUD. Palette: Void blacks (#040508), intense phosphorescent cyan (#00F0FF), hot electric magenta (#FF0055), and acid lemon (#FAFF00). Features: 1px geometric technical borders, subtle scanline textures, glassmorphism HUD data pods, and crisp monospace micro-labeling.' %}
+    {%- elif ns_aesthetic.mode == 'editorial' %}
+        {%- set _style_palette = 'Aesthetic Archetype: Haute Studio Editorial. Palette: Warm archival ivory (#F9F8F6), stark architectural carbon (#121212), and muted sage/terracotta accents. Features: Fluid clamp() typography scales, high-contrast serif headlines paired with stark geometric sans, generous negative space, and typographic grid lines.' %}
+    {%- elif ns_aesthetic.mode == 'neobrutalism' %}
+        {%- set _style_palette = 'Aesthetic Archetype: Tactile Neo-Brutalism. Palette: Vibrant high-chroma pop primaries (electric canary yellow, hyper-violet, mint) against solid bone backgrounds. Features: Unapologetic 2px-3px solid jet-black borders (solid #000), hard un-blurred drop shadows (box-shadow: 4px 4px 0 #000), playful geometric badges, and tactile active press states (transform: translate(2px, 2px); box-shadow: 2px 2px 0 #000).' %}
+    {%- elif ns_aesthetic.mode == 'bento' %}
+        {%- set _style_palette = 'Aesthetic Archetype: Linear / Modern Bento-Grid UI. Palette: Dark elevated slate surfaces (surface-1: #0D1117, surface-2: #161B22), subtle radial cursor-tracking spotlights, fine translucent borders (border: 1px solid rgba(255,255,255,0.08)), asymmetric modular card hierarchy (grid-column spans), and glowing micro-metric chips.' %}
+    {%- elif ns_aesthetic.mode == 'svg_isometric' %}
+        {%- set _style_palette = 'Aesthetic Archetype: True 30-Degree Isometric Vector Architecture. Palette: Harmonized three-plane lighting (Top: 100% luminance tint, Left: 70% midtone, Right: 45% core shadow). Features: Mathematical isometric projection paths, clean vector extrusions, layered ambient drop shadows, and zero raster dependencies.' %}
+    {%- else %}
+        {%- set _style_palette = 'Aesthetic Archetype: Exquisite Modern Craft. Palette: Nuanced chromatic neutrals (OKLCH color space), multi-layered ambient umbra/penumbra shadows, subtle inner bevels (inset 0 1px 0 rgba(255,255,255,0.1)), and buttery spring micro-physics.' %}
+    {%- endif %}
+
+    {%- set aesthetic_system_prompt %}
+# CRITICAL SPECIFICATION: EXQUISITE FRONTEND CRAFT & SVG ARTISTRY
+{{ _style_palette }}
+
+You are operating as a world-class UI designer, CSS architect, and master SVG illustrator. Reject mediocre generic outputs (no default Bootstrap-blue buttons, uninspired cards, flat clipart, or unstyled tables). Adhere strictly to these production standards:
+
+1. COLOR ARCHITECTURE & DEPTH COMPOSITION:
+   - Zero flat grays or primary saturation: Formulate palettes using OKLCH or calibrated alpha-blends. Layer dark modes using stepped surfaces (base: #0B0D13, elevated: #131722, overlay: #1C2232).
+   - Specular Bevels & Lighting: Use compound box-shadows to simulate physical light:
+     box-shadow: 0 1px 2px rgba(0,0,0,0.1), 0 12px 24px -4px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.1);
+   - Frosted Glass: Pair backdrop-filter: blur(16px) with an alpha-blended background and a 1px specular border (border: 1px solid rgba(255,255,255,0.08)).
+
+2. TYPOGRAPHY & LAYOUT CHOREOGRAPHY:
+   - Fluid Type: Headlines must scale responsively using clamp() (e.g., clamp(2rem, 4vw + 1rem, 4rem)).
+   - Kerning Calibration: Apply negative letter-spacing to large headers (letter-spacing: -0.025em to -0.035em). Micro-labels and tags must be uppercase with expanded tracking (letter-spacing: 0.1em; font-size: 0.72rem; font-weight: 600).
+   - Layout: Leverage CSS Grid, Subgrid, and container queries (container-type: inline-size) rather than fragile media query breakpoints.
+
+3. DYNAMICS, PHYSICS & MICRO-INTERACTIONS:
+   - Physics Curves: Forbid linear or standard ease. Use spring-informed bezier transitions:
+     transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+   - Interactive Feedback: Interactive cards, buttons, and inputs must actively respond to :hover, :focus-visible, and :active states with subtle elevation changes, border illumination, or glow.
+   - High-DPI Canvas: If using HTML5 <canvas>, dynamically scale for Retina displays (canvas.width = rect.width * dpr; ctx.scale(dpr, dpr)). Clean up all requestAnimationFrame loops.
+
+4. MASTER-GRADE SVG VECTOR CRAFT:
+   - Forbid primitive unshaded vector art. Every major surface must feature directional light modeling using multi-stop <linearGradient> or <radialGradient> definitions.
+   - SVG Filters: Elevate vector depth using native SVG filter pipelines (<filter id="...">):
+     * <feDropShadow> for soft volumetric shadows.
+     * <feGaussianBlur> combined with <feMerge> for specular bloom and neon radiance.
+     * <feTurbulence> with <feDisplacementMap> for tactile glass distortion or organic noise.
+   - Standard Compliance: Every SVG must include xmlns="http://www.w3.org/2000/svg", a calculated viewBox, vector-effect="non-scaling-stroke" on thin line work, and accessible titles.
+
+5. ZERO LAZINESS & COMPLETE ASSET AUTONOMY:
+   - NEVER truncate code. Do not emit comments like "/* Add remaining cards here */", "// ... rest of code unchanged", or ellipsis (...). Provide 100% full, executable code.
+   - Never link broken external placeholder images (no via.placeholder.com or generic Unsplash URLs). Use inline SVGs, CSS noise patterns (data:image/svg+xml,...), or procedural canvas rendering.
+    {%- endset %}
+{%- endif %}
+
+{# Head Message Aggregation #}
+{%- set sys_state = namespace(content='') %}
+{%- for message in messages[:head.count] %}
+    {%- set _part = clean_directives(render_content(message.content, true)) %}
+    {%- if _part %}
+        {%- if sys_state.content %}
+            {%- set sys_state.content = sys_state.content ~ '\n\n' ~ _part %}
+        {%- else %}
+            {%- set sys_state.content = _part %}
+        {%- endif %}
+    {%- endif %}
+{%- endfor %}
+{%- set _sc = sys_state.content %}
+
+{# Optional Terse Directive #}
+{%- set _terse_on = (terse in (true, 'true', 'True', 1, '1', 'on')) if terse is defined else false %}
+{%- if _terse_on %}
+    {%- if ns_state.thinking %}
+        {%- set _terse_lead = 'Answer directly, after thinking. Lead with the answer, then only what it needs to be correct and usable.' %}
+    {%- else %}
+        {%- set _terse_lead = 'Answer directly and concisely. Give the answer with only what it needs to be correct and usable.' %}
+    {%- endif %}
+    {%- set _terse_core %}
+Never: open with preamble or pleasantries; restate the question; add filler transitions; hedge with niceties; or repeat a point you have already made.
+Always: keep essential steps, caveats, uncertainties, and specifics — never drop correctness or a needed warning for brevity. Keep the final answer lean. Use the least structure that conveys it. If genuinely uncertain, say so.
+    {%- endset %}
+    {%- set _terse = _terse_lead ~ '\n' ~ (_terse_core | trim) %}
+    {%- set _sc = (_sc ~ '\n\n' ~ _terse) | trim if _sc else _terse | trim %}
+{%- endif %}
+
+{# Append Aesthetic System Prompt #}
+{%- if aesthetic_system_prompt %}
+    {%- set _sc = (_sc ~ '\n\n' ~ (aesthetic_system_prompt | trim)) | trim if _sc else (aesthetic_system_prompt | trim) %}
+{%- endif %}
+
+{# --- Frontend Tool Protocol & System Injection --- #}
+{%- set _runtime_tool_protocol = (_sc is defined and _sc and ('[TOOL_REQUEST]' in _sc or '[AVAILABLE_TOOLS]' in _sc or '<tool_protocol>' in _sc)) %}
+{%- set _suppress_tools = (suppress_tool_instructions in (true, 'true', 'True', 1, '1', 'on')) if suppress_tool_instructions is defined else _runtime_tool_protocol %}
+
+{%- if _has_tools and not _suppress_tools %}
+    {{- '<|im_start|>system\n' }}
+    {%- if reasoning_instructions %}
+        {{- reasoning_instructions + '\n\n' }}
+    {%- endif %}
+    {{- '# Tools\n\nYou have access to the following functions:\n\n<tools>' }}
+    {%- for tool in tools %}
+        {{- '\n' }}
+        {{- tool | tojson }}
+    {%- endfor %}
+    {{- '\n</tools>' }}
+    {%- if _tool_format == 'json' %}
+        {{- '\n\nFor each function call, return a json object with function name and arguments within <tool_call></tool_call> XML tags:\n' }}
+        {%- if ns_state.thinking %}
+            {{- '<think>\nBrief explanation of next step or parameter rationale\n</think>\n' }}
+        {%- endif %}
+        {{- '<tool_call>\n{"name": "example_function_name", "arguments": {"example_parameter_1": "value_1", "example_parameter_2": "value_2"}}\n</tool_call>\n\n<IMPORTANT>\n' }}
+        {%- if ns_state.thinking %}
+            {{- '- All planning, hypothesis testing, and error reflection MUST be placed strictly inside the <think></think> block.\n' }}
+            {{- '- Output the <tool_call> block IMMEDIATELY after thinking with NO conversational text before it.\n' }}
+        {%- else %}
+            {{- '- Output the <tool_call> block IMMEDIATELY with NO conversational text before it.\n' }}
+        {%- endif %}
+        {{- '- The <tool_call> tag MUST be at the very beginning of a new line, with NO indentation.\n' }}
+        {{- '- For multiple calls in parallel, output a separate <tool_call></tool_call> block for EACH function. Do NOT nest calls.\n' }}
+        {{- '- Keep tool calls purposeful: issue only the calls required for the immediate next step.\n' }}
+        {{- '- Once all necessary data is gathered, provide your final answer directly without calling further tools.\n</IMPORTANT>' }}
+    {%- else %}
+        {{- '\n\nIf you choose to call a function ONLY reply in the following format with NO suffix:\n\n' }}
+        {%- if ns_state.thinking %}
+            {{- '<think>\nBrief explanation of next step or parameter rationale\n</think>\n' }}
+        {%- endif %}
+        {{- '<tool_call>\n<function=example_function_name>\n<parameter=example_parameter_1>\nvalue_1\n</parameter>\n<parameter=example_parameter_2>\nvalue_2\n</parameter>\n</function>\n</tool_call>\n\n<IMPORTANT>\n' }}
+        {%- if ns_state.thinking %}
+            {{- '- All planning, hypothesis testing, and error reflection MUST be placed strictly inside the <think></think> block.\n' }}
+            {{- '- Output the <tool_call> block IMMEDIATELY after thinking with NO conversational text before it.\n' }}
+        {%- else %}
+            {{- '- Output the <tool_call> block IMMEDIATELY with NO conversational text before it.\n' }}
+        {%- endif %}
+        {{- '- Function calls MUST follow the specified format: an inner <function=...></function> block nested within <tool_call></tool_call> tags.\n' }}
+        {{- '- The <tool_call> and <function> tags MUST be at the very beginning of a new line, with NO spaces or indentation before them.\n' }}
+        {{- '- For multiple calls, output a separate, completely closed <tool_call></tool_call> block for EACH function. Do NOT nest blocks.\n' }}
+        {{- '- Keep tool calls purposeful: issue only the calls required for the immediate next step.\n' }}
+        {{- '- Once all necessary data is gathered, provide your final answer directly without calling further tools.\n</IMPORTANT>' }}
+    {%- endif %}
+    {%- if _sc %}
+        {{- '\n\n' + _sc }}
+    {%- endif %}
+    {{- '<|im_end|>\n' }}
+{%- else %}
+    {%- if _sc %}
+        {{- '<|im_start|>system\n' + (reasoning_instructions + '\n\n' if reasoning_instructions else '') + _sc + '<|im_end|>\n' }}
+    {%- elif reasoning_instructions %}
+        {{- '<|im_start|>system\n' + reasoning_instructions + '<|im_end|>\n' }}
+    {%- endif %}
+{%- endif %}
+
+{# --- Conversation Render Loop --- #}
+{%- set ns2 = namespace(prev_role='', consecutive_failures=0) %}
+{%- for message in _msgs %}
+    {%- set is_system = (message.role == "system" or message.role == "developer") %}
+    {%- set content = render_content(message.content, is_system) | trim %}
+    {%- if is_system or message.role == 'user' %}
+        {%- set content = clean_directives(content) %}
+    {%- endif %}
+
+    {%- if is_system %}
+        {{- '<|im_start|>system\n' + content + '<|im_end|>\n' }}
+    {%- elif message.role == 'user' %}
+        {%- set ns2.consecutive_failures = 0 %}
+        {{- '<|im_start|>user\n' + content + '<|im_end|>\n' }}
+    {%- elif message.role == 'assistant' %}
+        {%- set reasoning_content = '' %}
+        {%- set _explicit_reasoning = '' %}
+        {%- if message.reasoning_content is defined and message.reasoning_content is not none %}
+            {%- set _explicit_reasoning = (message.reasoning_content.text if message.reasoning_content is mapping and 'text' in message.reasoning_content else message.reasoning_content) | string %}
+        {%- elif message.thinking is defined and message.thinking is not none %}
+            {%- set _explicit_reasoning = (message.thinking.text if message.thinking is mapping and 'text' in message.thinking else message.thinking) | string %}
+        {%- elif message.reasoning is defined and message.reasoning is not none %}
+            {%- set _explicit_reasoning = (message.reasoning.text if message.reasoning is mapping and 'text' in message.reasoning else message.reasoning) | string %}
+        {%- endif %}
+
+        {%- if _explicit_reasoning %}
+            {%- set _lead_end = '</think>' if '</think>' in content else ('</thinking>' if '</thinking>' in content else '') %}
+            {%- if _lead_end %}
+                {%- set _parts = content.split(_lead_end) %}
+                {%- set content = (_parts[1:] | join(_lead_end)).lstrip('\n') %}
+            {%- endif %}
+            {%- set reasoning_content = _explicit_reasoning %}
+        {%- else %}
+            {%- set _think_end = '</think>' if '</think>' in content else ('</thinking>' if '</thinking>' in content else '') %}
+            {%- if _think_end %}
+                {%- set _think_start = '<thinking>' if 'thinking' in _think_end else '<think>' %}
+                {%- set _parts = content.split(_think_end) %}
+                {%- set reasoning_content = _parts[0].rstrip('\n') %}
+                {%- if _think_start in reasoning_content %}
+                    {%- set reasoning_content = reasoning_content.split(_think_start)[-1].lstrip('\n') %}
+                {%- endif %}
+                {%- set content = (_parts[1:] | join(_think_end)).lstrip('\n') %}
+            {%- endif %}
+        {%- endif %}
+        {%- set reasoning_content = reasoning_content | trim %}
+
+        {# Emit Assistant Thought and Content #}
+        {%- if reasoning_content and (_preserve_thinking or loop.index0 >= ns_traj.last_query_index) %}
+            {{- '<|im_start|>assistant\n<think>\n' + reasoning_content + '\n</think>\n\n' + content }}
+        {%- else %}
+            {{- '<|im_start|>assistant\n' + content }}
+        {%- endif %}
+
+        {# Emit Tool Calls (Guarded against double emission) #}
+        {%- if message.tool_calls is defined and message.tool_calls and message.tool_calls is iterable and message.tool_calls is not mapping and '<tool_call>' not in content %}
+            {%- for tool_call in message.tool_calls %}
+                {%- set tc = tool_call.function if (tool_call.function is defined and tool_call.function is not none) else tool_call %}
+                {%- set tc_name = tc.name if (tc.name is defined and tc.name is not none) else '' %}
+                {%- set tc_args_raw = tc.arguments if (tc.arguments is defined and tc.arguments is not none) else (tc.parameters if (tc.parameters is defined and tc.parameters is not none) else (tc.input if (tc.input is defined and tc.input is not none) else none)) %}
+
+                {%- if _tool_format == 'json' %}
+                    {%- if loop.first and (content | trim) %}{{- '\n\n' }}{%- elif not loop.first %}{{- '\n' }}{%- endif %}
+                    {%- set _args = '{}' %}
+                    {%- if tc_args_raw is not none %}
+                        {%- if tc_args_raw is mapping %}
+                            {%- set _args = tc_args_raw | tojson %}
+                        {%- elif tc_args_raw is string %}
+                            {%- set _trimmed = tc_args_raw | trim %}
+                            {%- set _args = _trimmed if (_trimmed | length > 0 and _trimmed | first == '{' and _trimmed | last == '}') else (tc_args_raw | tojson) %}
+                        {%- else %}
+                            {%- set _args = tc_args_raw | tojson %}
+                        {%- endif %}
+                    {%- endif %}
+                    {{- '<tool_call>\n{"name": ' }}{{- tc_name | tojson }}{{- ', "arguments": ' }}{{- _args }}{{- '}\n</tool_call>' }}
+                {%- else %}
+                    {%- if loop.first and (content | trim) %}
+                        {{- '\n\n<tool_call>\n<function=' + tc_name + '>\n' }}
+                    {%- else %}
+                        {{- ('' if loop.first else '\n') + '<tool_call>\n<function=' + tc_name + '>\n' }}
+                    {%- endif %}
+                    {%- if tc_args_raw is not none %}
+                        {%- if tc_args_raw is mapping %}
+                            {%- for args_name, args_value in tc_args_raw.items() %}
+                                {{- '<parameter=' + args_name + '>\n' }}
+                                {%- set _av = args_value if args_value is string else (args_value | tojson) %}
+                                {%- if max_tool_arg_chars > 0 and _av | length > max_tool_arg_chars %}
+                                    {{- _av[:max_tool_arg_chars] + '\n[TRUNCATED - original length ' ~ (_av | length | string) ~ ' chars]' }}
+                                {%- else %}
+                                    {{- _av }}
+                                {%- endif %}
+                                {{- '\n</parameter>\n' }}
+                            {%- endfor %}
+                        {%- else %}
+                            {%- set _raw_args = tc_args_raw if tc_args_raw is string else (tc_args_raw | tojson) %}
+                            {%- if _raw_args %}
+                                {%- if max_tool_arg_chars > 0 and _raw_args | length > max_tool_arg_chars %}
+                                    {{- _raw_args[:max_tool_arg_chars] + '\n[TRUNCATED - original length ' ~ (_raw_args | length | string) ~ ' chars]' }}
+                                {%- else %}
+                                    {{- _raw_args }}
+                                {%- endif %}
+                            {%- endif %}
+                        {%- endif %}
+                    {%- endif %}
+                    {{- '</function>\n</tool_call>' }}
+                {%- endif %}
+            {%- endfor %}
+        {%- endif %}
+        {{- '<|im_end|>\n' }}
+    {%- elif message.role == 'tool' %}
+        {# --- Anti-Loop Failure Detection --- #}
+        {%- set _content_lower = content | lower %}
+        {%- set _content_head = _content_lower[:150] %}
+        {%- set _is_code_or_grep = ('throw new ' in _content_lower or 'throw error' in _content_lower or 'console.error' in _content_lower or 'logger.error' in _content_lower or 'logging.error' in _content_lower or 'import ' in _content_head or 'def ' in _content_head or 'function ' in _content_head) %}
+        {%- set _exit_code_zero = ('exit code: 0' in _content_head or 'process exited with code 0' in _content_head) %}
+        {%- set _error_field_ok = ('"error": null' in _content_head or '"error":null' in _content_head or '"error": false' in _content_head or '"error":false' in _content_head or '"error": ""' in _content_head or '"error":""' in _content_head) %}
+        {%- set _strong_error = (('"error":' in _content_head and not _error_field_ok) or '"status": "error"' in _content_head or '"status":"error"' in _content_head or '"success": false' in _content_head or '"success":false' in _content_head or 'traceback (most recent call last):' in _content_head or 'command not found' in _content_head or 'invalid syntax' in _content_head or 'fatal:' in _content_head or 'permission denied' in _content_head or 'no such file or directory' in _content_head or '404 not found' in _content_head or 'rate limit' in _content_head or 'connection refused' in _content_head or 'timed out' in _content_head or (('exit code: ' in _content_head or 'process exited with code' in _content_head) and not _exit_code_zero) or _content_head.startswith('exception:') or _content_head.startswith('failed to ')) %}
+        {%- set _weak_error = ('error:' in _content_head or 'err!' in _content_head) %}
+        {%- set _weak_suppressed = ('$ ' in _content_head or 'took ' in _content_head or content | length >= 600) %}
+
+        {%- if not _is_code_or_grep and (_strong_error or (_weak_error and not _weak_suppressed)) %}
+            {%- set ns2.consecutive_failures = ns2.consecutive_failures + 1 %}
+        {%- else %}
+            {%- set ns2.consecutive_failures = 0 %}
+        {%- endif %}
+
+        {%- if ns2.prev_role != 'tool' %}
+            {{- '<|im_start|>user' }}
+        {%- endif %}
+
+        {# Truncate non-JSON outputs safely #}
+        {%- set _is_json_payload = (content | trim | length > 0 and (content | trim)[:1] in ('{', '[')) %}
+        {%- if max_tool_response_chars > 0 and content | length > max_tool_response_chars %}
+            {%- if _is_json_payload %}
+                {%- set content = content[:max_tool_response_chars] + '\n[TRUNCATED: Output exceeded ' ~ max_tool_response_chars ~ ' chars. Remaining JSON payload clipped]' %}
+            {%- else %}
+                {%- set content = content[:max_tool_response_chars] + '\n[TRUNCATED - original length ' ~ (content | length | string) ~ ' chars]' %}
+            {%- endif %}
+        {%- endif %}
+
+        {{- '\n<tool_response>\n' + content }}
+
+        {# 3-Tier Failure Escalation #}
+        {%- if ns2.consecutive_failures >= 3 %}
+            {{- '\n\n⚠️ SYSTEM WARNING: ' ~ ns2.consecutive_failures ~ ' consecutive tool errors detected. CRITICAL AGENTIC LOOP. Do NOT repeat the failed command or variations of it. PIVOT to an alternative diagnostic tool or report the blocker.' }}
+        {%- elif ns2.consecutive_failures == 2 %}
+            {{- '\n\n⚠️ SYSTEM WARNING: 2 consecutive tool errors detected. Root cause diagnosis required. Use an alternative command or diagnostic pathway.' }}
+        {%- elif ns2.consecutive_failures == 1 %}
+            {{- '\n\n⚠️ SYSTEM WARNING: The previous tool call returned an error. Diagnose failure and retry with corrected arguments.' }}
+        {%- endif %}
+
+        {{- '\n</tool_response>' }}
+
+        {%- if loop.last %}
+            {{- '<|im_end|>\n' }}
+        {%- else %}
+            {%- set _next_role = _msgs[loop.index0 + 1].role %}
+            {%- if _next_role != 'tool' %}
+                {{- '<|im_end|>\n' }}
+            {%- endif %}
+        {%- endif %}
+    {%- else %}
+        {{- '<|im_start|>user\n[' + message.role + ']: ' + content + '<|im_end|>\n' }}
+    {%- endif %}
+    {%- set ns2.prev_role = message.role %}
+{%- endfor %}
+
+{# --- Generation Prompt --- #}
+{%- set _add_gen = (add_generation_prompt in (true, 'true', 'True', 1, '1', 'on')) if add_generation_prompt is defined else false %}
+{%- if _add_gen %}
+    {{- '<|im_start|>assistant\n' }}
+    {%- if not ns_state.thinking %}
+        {{- '<think>\n\n</think>\n\n' }}
+    {%- else %}
+        {{- '<think>\n' }}
+    {%- endif %}
+{%- endif %}

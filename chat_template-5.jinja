@@ -1,0 +1,205 @@
+{# ============================================================================
+   DeepSeek Sharp Chat Template -- v1.0
+   ---------------------------------------------------------------------------
+   DeepSeek-V2/V3 native header framing + a terseness system prompt appended +
+   full agentic-coding support: tool-call rendering (JSON + XML), DeepSeek
+   reasoning extraction (native `` / fenced ```xml / ```thinking / plain ``` +
+   plain-content fallback), and KV-cache-safe history (thinking blocks are
+   preserved and re-derivable on re-render).
+
+   Properties:
+   - Deterministic: identical input -> identical output bytes (no loop.index in
+     content). This is what keeps the KV cache aligned across re-generation.
+   - Lossless: nothing the caller passes is dropped or rewritten; the terseness
+     block is force-appended after the model's own system prompt.
+   - Faithful: reasoning uses DeepSeek's ASCII `` markers (universal across the
+     native and HF tokenizers); tool calls render in a parseable envelope.
+
+   NOTE: uses only {% macro %} (standard Jinja2) so it renders under
+   transformers' ImmutableSandboxedEnvironment (which enables loopcontrols +
+   AssistantTracker but NOT the defs extension). No {% def %}.
+
+   Kwargs:
+   - terse   : bool (default true)  append the terseness system block.
+   - toolfmt : "json" (default) | "xml"   tool-call rendering style.
+   #}
+{%- set template_version = "deepseek-sharp-v1.0" %}
+{%- set _think = '````' %}
+
+{# --- terseness splice: byte-identical core (do not edit below this line) --- #}
+{%- set _terse_on = terse if terse is defined else true %}
+{%- set _terse_core %}
+Never: open with preamble or pleasantries; restate the question; add filler transitions; hedge with niceties; or repeat a point you've already made.
+Always: keep essential steps, caveats, uncertainties, and specifics — never drop correctness or a needed warning for brevity. Keep the final answer lean. Use the least structure that conveys it (plain prose when short; lists or code only when they earn their place). If genuinely uncertain, say so and explain why — never omit uncertainty for the sake of brevity.
+If a user request is genuinely ambiguous, ask a sharp question, don't guess.
+{%- endset %}
+
+{# --- normalize any message content to a trimmed string --- #}
+{%- macro content_of(m) -%}
+{%- set _out = '' -%}
+{%- if m.content is string -%}
+{%- set _out = m.content | trim -%}
+{%- elif m.content and m.content[0] and m.content[0].text is defined -%}
+{%- set _out = m.content[0].text | trim -%}
+{%- endif -%}
+{{ _out }}
+{%- endmacro -%}
+
+{# --- extract the reasoning span from an assistant message --- #}
+{# Precedence: native `` > fenced reasoning (xml/thinking/reasoning/thought) > #}
+{# a single plain ``` block > plain content (no reasoning). #}
+{%- macro extract_reasoning(content) -%}
+{%- set c = (content | default('') | string | trim) -%}
+{%- set _r = '' -%}
+{%- if c.startswith(_think) -%}
+{%- set parts = c.split(_think, 2) -%}
+{%- if parts | length >= 2 -%}
+{%- set _r = parts[1] | trim -%}
+{%- endif -%}
+{%- elif c.startswith('```xml') or c.startswith('```thinking') or c.startswith('```reasoning') or c.startswith('```thought') -%}
+{%- set parts = c.rsplit('```', 1) -%}
+{%- set _r = parts[0].split('\n', 1)[1] if '\n' in parts[0] else '' -%}
+{%- set _r = _r | replace('```', '') | trim -%}
+{%- set _a = (parts[1] | default('')) | trim -%}
+{%- if _r == '' -%}
+{%- set _r = c.split('\n')[1:] | join('\n') | replace('```', '') | trim -%}
+{%- endif -%}
+{%- elif c.startswith('```') and c.rstrip().endswith('```') and (c.split('\n') | length >= 3) -%}
+{%- set _r = c.split('\n')[1:-1] | join('\n') | trim -%}
+{%- endif -%}
+{{ _r }}
+{%- endmacro -%}
+
+{# --- strip the reasoning span out, leaving the pure answer text --- #}
+{%- macro extract_answer(content) -%}
+{%- set c = (content | default('') | string | trim) -%}
+{%- set _a = c -%}
+{%- if c.startswith(_think) -%}
+{%- set parts = c.split(_think, 2) -%}
+{%- if parts | length >= 3 -%}
+{%- set _a = parts[2] | trim -%}
+{%- elif parts | length == 2 -%}
+{%- set _a = '' -%}
+{%- endif -%}
+{%- elif c.startswith('```xml') or c.startswith('```thinking') or c.startswith('```reasoning') or c.startswith('```thought') -%}
+{%- set parts = c.rsplit('```', 1) -%}
+{%- set _a = (parts[1] | default('')) | trim -%}
+{%- if _a == '' -%}
+{%- set _a = parts[0].split('\n', 1)[1] if '\n' in parts[0] else '' -%}
+{%- set _a = _a | replace('```', '') | trim -%}
+{%- endif -%}
+{%- elif c.startswith('```') and c.rstrip().endswith('```') and (c.split('\n') | length >= 3) -%}
+{%- set _a = '' -%}
+{%- endif -%}
+{{ _a }}
+{%- endmacro -%}
+
+{# --- build the "## Tools" advertisement block (native DeepSeek convention) --- #}
+{%- macro tool_docs() -%}
+{%- set ns = namespace(out='## Tools\nYou have access to the following tools:\n') -%}
+{%- for t in tools -%}
+{%- set _fn = t['function'] | default(t) -%}
+{%- set _name = _fn['name'] | default('') -%}
+{%- set _desc = (_fn['description'] | default('')) | trim -%}
+{%- set _schema = _fn['parameters'] | default({}) -%}
+{%- set ns.out = ns.out ~ ('\n### ' ~ _name ~ '\nDescription: ' ~ _desc ~ '\n\nParameters: ' ~ (_schema | tojson)) ~ '\n' -%}
+{%- endfor -%}
+{%- set ns.out = ns.out ~ '\nIMPORTANT: ALWAYS adhere to this exact format for tool use:\n' -%}
+{{ ns.out }}
+{%- endmacro -%}
+
+{# --- render one tool call's JSON arguments string --- #}
+{%- macro render_call_args(call) -%}
+{%- set _fn = call['function'] | default(call) -%}
+{%- set _args = _fn['arguments'] | default('') -%}
+{%- if _args is string -%}{{ _args }}{%- else -%}{{ _args | tojson }}{%- endif -%}
+{%- endmacro -%}
+
+{# --- render a batch of tool calls in the selected format --- #}
+{%- macro render_tool_calls(calls) -%}
+{%- set ns = namespace(out='') -%}
+{%- if _toolfmt == 'xml' -%}
+{%- set ns.out = '<tool_calls>\n' -%}
+{%- for call in calls -%}
+{%- set _fn = call['function'] | default(call) -%}
+{%- set _name = _fn['name'] | default('') -%}
+{%- set ns.out = ns.out ~ '<tool_call name="' ~ _name ~ '">' ~ render_call_args(call) ~ '</tool_call>\n' -%}
+{%- endfor -%}
+{%- set ns.out = ns.out ~ '</tool_calls>' -%}
+{%- else -%}
+{%- set tl = namespace(parts=[]) -%}
+{%- for call in calls -%}
+{%- set tl.parts = tl.parts + [render_call_args(call)] -%}
+{%- endfor -%}
+{%- set ns.out = '[' ~ (tl.parts | join(', ')) ~ ']' -%}
+{%- endif -%}
+{{ ns.out }}
+{%- endmacro -%}
+
+{# --- merge all system/developer messages into one turn (namespace: set-in-loop fix) --- #}
+{%- set _sysns = namespace(sys='') %}
+{%- for msg in messages if msg.role in ('system','developer') %}
+    {%- set _part = content_of(msg) | trim %}
+    {%- set _sysns.sys = _sysns.sys ~ (('\n\n' if _sysns.sys | trim else '')) ~ _part %}
+{%- endfor %}
+{%- set _sys = _sysns.sys %}
+{%- if _terse_on %}
+    {%- set _sys = (_sys | trim) ~ (('\n\n' if _sys | trim else '')) ~ '[TERSENESS]\n' ~ (_terse_core | trim) %}
+{%- endif %}
+
+{# --- tool mode detection --- #}
+{%- set _has_tools = tools is defined and tools %}
+{%- set _tool_results = messages | selectattr('role', 'in', ['tool', 'function']) | list %}
+{%- set _tool_calls = messages | selectattr('role', 'eq', 'assistant') | selectattr('tool_calls', 'defined') | list %}
+{%- set _tool_mode = _has_tools or _tool_results or _tool_calls %}
+{%- set _toolfmt = toolfmt if toolfmt is defined else 'json' %}
+{%- if _has_tools %}
+{%- set _sys = (_sys | trim) ~ ('\n\n' ~ tool_docs() | trim) %}
+{%- endif %}
+
+{# --- emit the merged system turn --- #}
+{%- if _sys | trim %}
+<|start_header_id|>system<|end_header_id|>
+
+{{ _sys | trim }}
+<|eot_id|>
+{%- endif %}
+
+{# --- emit non-system turns --- #}
+{%- for msg in messages if msg.role not in ('system','developer') %}
+{%- if msg.role == 'assistant' %}
+{%- set _raw = content_of(msg) %}
+{%- set _rc = msg.reasoning_content | default('') %}
+{%- if _rc | trim %}
+{%- set _reasoning = _rc | trim %}
+{%- set _answer = _raw %}
+{%- else %}
+{%- set _reasoning = extract_reasoning(_raw) %}
+{%- set _answer = extract_answer(_raw) %}
+{%- endif %}
+{%- if _tool_mode and msg.tool_calls %}
+<|start_header_id|>assistant<|end_header_id|>
+
+{% if _reasoning %}{{ _reasoning }}
+
+{% endif %}{{ render_tool_calls(msg.tool_calls) }}
+<|eot_id|>
+{%- else %}
+<|start_header_id|>assistant<|end_header_id|>
+
+{% if _reasoning %}{{ _think }}{{ _reasoning }}{{ _think }}{{ _answer }}{% elif _answer %}{{ _answer }}{% endif %}
+<|eot_id|>
+{%- endif %}
+{%- elif msg.role in ('tool','function') %}
+<|start_header_id|>tool<|end_header_id|>
+
+{{ content_of(msg) }}
+<|eot_id|>
+{%- else %}
+<|start_header_id|>{{ msg.role }}<|end_header_id|>
+
+{{ content_of(msg) }}
+<|eot_id|>
+{%- endif %}
+{%- endfor %}
+{%- if add_generation_prompt %}{{ '<|start_header_id|>assistant<|end_header_id|>\n\n' }}{%- endif -%}

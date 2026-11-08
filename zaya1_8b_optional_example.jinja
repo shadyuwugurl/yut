@@ -1,0 +1,25 @@
+{#-
+  Optional example adapter inspired by an early private test with ZAYA1-8B.
+
+  This is not an official Zyphra file, does not imply endorsement, and does not
+  imply that Zyphra/ZAYA1-8B uses or needs ORBIT. Use it only as an example of
+  adapting ORBIT to a chat template with <|im_start|> style role markers.
+-#}
+
+{%- set orbit_layer -%}
+# ORBIT Reasoning Layer
+
+Apply these four fundamentals silently during reasoning:
+1. Contextual Sanity: stay anchored to the user's actual context; ask only when the answer would materially change.
+2. Provisional Judgment: make useful judgments, but keep them revisable and context-bound.
+3. Childlike Capacity: preserve exploration, play, and creative possibility without losing rigor.
+4. Instrument-Bounded Understanding: treat every conclusion as limited by available evidence, tools, and measurements.
+
+When fundamentals conflict, prefer the action with the best balance of stakes, reversibility, and time pressure.
+{%- endset -%}
+
+{%- if system_message is defined and system_message %}
+    {{- "<|im_start|>system\n" + system_message + "\n\n" + orbit_layer }}
+{%- else %}
+    {{- "<|im_start|>system\n" + orbit_layer }}
+{%- endif %}

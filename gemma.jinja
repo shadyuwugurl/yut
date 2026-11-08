@@ -1,0 +1,873 @@
+{%- set template_version = template_version if template_version is defined else "protium-v1.0.0-objective-gated" %}
+
+{#- ========================================================================== -#}
+{#- PROTIUM-1.0 — OBJECTIVE-GATED COGNITIVE ARCHITECTURE                        -#}
+{#- Solstice-AI Zero-Waste Protocol for High-Efficiency Reasoning Models       -#}
+{#- Named after Protium (1H): Zero Neutrons. Zero Dead Weight. Pure Thrust.    -#}
+{#- Lineage: qwen3.8-froggeric-v22.5.0 (DavidAU, MIT) -> Solstice-AI           -#}
+{#-                                                                             -#}
+{#- CORE TENETS:                                                                -#}
+{#-   1. TOKEN 1 TARGET ANCHOR: Lock the termination condition at step 1.       -#}
+{#-   2. FORWARD-ONLY SOLVE: Advance directly toward the target. Eliminate      -#}
+{#-      conversational filler ("let's see", "hmm", "wait"). No rhetorical     -#}
+{#-      hesitation; execute pure continuous deduction.                         -#}
+{#-   3. EARLY EXIT GATE: Terminate thinking the instant the target condition   -#}
+{#-      is satisfied and verified. Never dwell, stall, or manufacture doubt.   -#}
+{#-   4. DELTA-ONLY CORRECTION: Fix only the broken variable upon contradiction;-#}
+{#-      never regress into full restarts or circular overthinking loops.       -#}
+{#-   5. ABSOLUTE RESOLVE: Decisive, unhedged final delivery. Zero preamble.    -#}
+{#-                                                                             -#}
+{#- THE SPECTRUM (governed purely by problem constraints & verification):       -#}
+{#-   [L0] Mortal     - thinking off; execute directly.                         -#}
+{#-   [L1] Hermes     - rapid instinct; immediate verification pass.            -#}
+{#-   [L2] Apollo     - disciplined deduction; linear constraint trace.         -#}
+{#-   [L3] Artemis    - edge-case & boundary vulnerability audit.               -#}
+{#-   [L4] Athena     - strategic synthesis; architectural trade-offs.          -#}
+{#-   [L5] Prometheus - defensive engineering; second-order failure modeling.   -#}
+{#-   [L6] Solstice   - axiomatic derivation; multi-hypothesis stress testing.  -#}
+{#-   [L7] Hyperion   - ground-up first-principles decomposition.               -#}
+{#-   [L8] Einstein   - theoretical mastery; unified invariant reduction.       -#}
+{#-   [L9] Oracle     - proof-grade formal authority; zero placeholders.        -#}
+{#-   [L10] Proteus   - dynamic cognitive adaptation (Default); auto-calibrated -#}
+{#-                     impedance matching across all levels with early exit.   -#}
+{#-   swarm            - 20-perspective divergent swarm, verdict line.           -#}
+{#-   council          - adversarial research council, verdict line.             -#}
+{#-                                                                             -#}
+{#- CONTINUOUS DEPTH MAP (10-100):  1-14 L1 | 15-29 L2 | 30-44 L3 | 45-59 L4 |  -#}
+{#-    60-69 L5 | 70-79 L6 | 80-89 L7 | 90-96 L8 | 97-100 L9 | 0 = off.         -#}
+{#-                                                                             -#}
+{#- INLINE SYNTAX (case-insensitive, stripped before model sees them):          -#}
+{#-    [L0]..[L9] | {REASON:level|name|number} | [MODE:level|name|number]       -#}
+{#-    [regular] | [vanilla] | [standard] | [default]                           -#}
+{#-    Prefix 'i' = silent variant: {REASON:i8} runs L8 rigor, thinking hidden. -#}
+{#- PRECEDENCE: default L7  <  runtime kwarg  <  inline signals (last wins).    -#}
+{#- ========================================================================== -#}
+
+{#- ------------------------------------------------------------------ -#}
+{#- RUNTIME KWARGS                                                      -#}
+{#- ------------------------------------------------------------------ -#}
+{%- set _tool_format = tool_call_format if tool_call_format is defined else 'xml' %}
+{%- set image_count = namespace(value=0) %}
+{%- set video_count = namespace(value=0) %}
+{%- set add_vision_id = add_vision_id if add_vision_id is defined else false %}
+{%- set enable_thinking = enable_thinking if enable_thinking is defined else true %}
+{%- set auto_disable_thinking_with_tools = auto_disable_thinking_with_tools if auto_disable_thinking_with_tools is defined else false %}
+{%- if preserve_reasoning is defined and preserve_reasoning is not none %}
+    {%- set _preserve_thinking = preserve_reasoning %}
+{%- elif preserve_thinking is defined and preserve_thinking is not none %}
+    {%- set _preserve_thinking = preserve_thinking %}
+{%- else %}
+    {%- set _preserve_thinking = true %}
+{%- endif %}
+{%- set max_tool_arg_chars = max_tool_arg_chars if max_tool_arg_chars is defined else 0 %}
+{%- set max_tool_response_chars = max_tool_response_chars if max_tool_response_chars is defined else 0 %}
+{%- set _has_tools = (tools is defined and tools and tools is iterable and tools is not mapping) %}
+{%- set suppress_tool_instructions = suppress_tool_instructions if suppress_tool_instructions is defined else none %}
+
+{#- ================================================================== -#}
+{#- S3 PRIMITIVES — render & scan helpers (no cognitive content).       -#}
+{#- ================================================================== -#}
+
+{#- Content renderer with vision support (render loop only). -#}
+{%- macro render_content(content, do_vision_count, is_system_content=false) %}
+    {%- if content is string %}
+        {{- content }}
+    {%- elif content is iterable and content is not mapping %}
+        {%- for item in content %}
+            {%- if item is mapping %}
+                {%- if item.type == 'image' or 'image' in item or 'image_url' in item %}
+                    {%- if is_system_content %}
+                        {{- raise_exception('System message cannot contain images.') }}
+                    {%- endif %}
+                    {%- if do_vision_count %}
+                        {%- set image_count.value = image_count.value + 1 %}
+                    {%- endif %}
+                    {%- if add_vision_id %}
+                        {{- 'Picture ' ~ image_count.value ~ ': ' }}
+                    {%- endif %}
+                    {{- '<|vision_start|><|image_pad|><|vision_end|>' }}
+                {%- elif item.type == 'video' or 'video' in item or 'video_url' in item %}
+                    {%- if is_system_content %}
+                        {{- raise_exception('System message cannot contain videos.') }}
+                    {%- endif %}
+                    {%- if do_vision_count %}
+                        {%- set video_count.value = video_count.value + 1 %}
+                    {%- endif %}
+                    {%- if add_vision_id %}
+                        {{- 'Video ' ~ video_count.value ~ ': ' }}
+                    {%- endif %}
+                    {{- '<|vision_start|><|video_pad|><|vision_end|>' }}
+                {%- elif 'text' in item %}
+                    {{- item.text }}
+                {%- else %}
+                    {{- raise_exception('Unexpected item type in content.') }}
+                {%- endif %}
+            {%- else %}
+                {{- item | string }}
+            {%- endif %}
+        {%- endfor %}
+    {%- elif content is none or content is undefined %}
+        {{- '' }}
+    {%- else %}
+        {{- raise_exception('Unexpected content type.') }}
+    {%- endif %}
+{%- endmacro %}
+
+{#- Text-only scanner renderer: images/videos render as '' so the S1 scan -#}
+{#- pass never raises on multimodal messages (v2.x vision bug fixed).     -#}
+{%- macro scan_text(content) %}
+    {%- if content is string %}
+        {{- content }}
+    {%- elif content is iterable and content is not mapping %}
+        {%- for item in content %}
+            {%- if item is mapping and 'text' in item and item.text is string %}
+                {{- item.text }}
+            {%- elif item is string %}
+                {{- item }}
+            {%- endif %}
+        {%- endfor %}
+    {%- endif %}
+{%- endmacro %}
+
+{#- Strip every inline control tag from visible text. -#}
+{%- macro strip_control_tags(text) %}
+    {%- set t = text %}
+    {%- if '{REASON:' in t %}
+        {%- set _raw = t.split('{REASON:')[1].split('}')[0] %}
+        {%- set t = t.replace('{REASON:' ~ _raw ~ '}', '') %}
+    {%- endif %}
+    {%- if '[MODE:' in t %}
+        {%- set _raw2 = t.split('[MODE:')[1].split(']')[0] %}
+        {%- set t = t.replace('[MODE:' ~ _raw2 ~ ']', '') %}
+    {%- endif %}
+    {%- set t2 = t %}
+    {%- set t3 = t2 | replace('<|think_on|>', '') | replace('<|think_off|>', '') | replace('<|think_minimal|>', '') | replace('<|think_low|>', '') | replace('<|think_medium|>', '') | replace('<|think_high|>', '') | replace('<|think_xhigh|>', '') | replace('<|think_ultracode|>', '') | replace('<|think_extreme|>', '') | replace('<|think_max|>', '') %}
+    {#- NB: no for-loops here — Jinja set does not persist across loop -#}
+    {#- iterations, so every strip must live in one chained expression.  -#}
+    {%- set out = t3 | replace('[regular]', '') | replace('[REGULAR]', '') | replace('[vanilla]', '') | replace('[standard]', '') | replace('[default]', '') | replace('[L10]', '') | replace('[l10]', '') | replace('[L0]', '') | replace('[l0]', '') | replace('[L1]', '') | replace('[l1]', '') | replace('[L2]', '') | replace('[l2]', '') | replace('[L3]', '') | replace('[l3]', '') | replace('[L4]', '') | replace('[l4]', '') | replace('[L5]', '') | replace('[l5]', '') | replace('[L6]', '') | replace('[l6]', '') | replace('[L7]', '') | replace('[l7]', '') | replace('[L8]', '') | replace('[l8]', '') | replace('[L9]', '') | replace('[l9]', '') %}
+    {{- out }}
+{%- endmacro %}
+
+{#- Remove only a {REASON:...} / [MODE:...] tag (assistant history path). -#}
+{%- macro strip_mode_tag(text) %}
+    {%- set t = text %}
+    {%- if '{REASON:' in t %}
+        {%- set _raw = t.split('{REASON:')[1].split('}')[0] %}
+        {%- set t = t.replace('{REASON:' ~ _raw ~ '}', '') %}
+    {%- elif '[MODE:' in t %}
+        {%- set _raw = t.split('[MODE:')[1].split(']')[0] %}
+        {%- set t = t.replace('[MODE:' ~ _raw ~ ']', '') %}
+    {%- endif %}
+    {{- t }}
+{%- endmacro %}
+
+{#- Tool output error classifier → 'error' | 'ok'. Shares ONE definition -#}
+{#- with the S1 failure pre-pass and the render-loop warning counter.     -#}
+{%- macro classify_tool_output(content) %}
+    {%- set _lower = content | lower %}
+    {%- set _head = _lower[:120] %}
+    {%- set _is_code_or_grep = ('throw new ' in _lower or 'throw error' in _lower or 'console.error' in _lower or 'logger.error' in _lower or 'logging.error' in _lower or 'import ' in _head or 'def ' in _head or 'function ' in _head) %}
+    {%- set _exit_code_zero = ('exit code: 0' in _head or 'process exited with code 0' in _head) %}
+    {%- set _error_field_ok = ('"error": null' in _head or '"error":null' in _head or '"error": false' in _head or '"error":false' in _head or '"error": ""' in _head or '"error":""' in _head) %}
+    {%- set _strong = (('"error":' in _head and not _error_field_ok) or '"status": "error"' in _head or '"status":"error"' in _head or 'traceback (most recent call last):' in _head or 'command not found' in _head or 'invalid syntax' in _head or 'fatal:' in _head or (('exit code: ' in _head or 'process exited with code' in _head) and not _exit_code_zero) or _head.startswith('exception:') or _head.startswith('failed to ')) %}
+    {%- set _weak = ('error:' in _head or 'err!' in _head) %}
+    {%- set _suppressed = ('$ ' in _head or 'took ' in _head or content | length >= 600) %}
+    {%- if not _is_code_or_grep and (_strong or (_weak and not _suppressed)) %}
+        {{- 'error' }}
+    {%- else %}
+        {{- 'ok' }}
+    {%- endif %}
+{%- endmacro %}
+
+{#- ================================================================== -#}
+{#- S2 COGNITIVE PROFILES — pure text. Soft shares only; there are no   -#}
+{#- token counts, word floors or ceilings anywhere in this section.     -#}
+{#- ================================================================== -#}
+
+{%- set soft_budget_contract -%}
+PROTIUM OBJECTIVE-GATED REASONING CONTRACT:
+1. Target Anchor: At token 1, isolate the exact termination criteria — define what a completed, verified solution requires before executing.
+2. Forward-Only Solve: Advance directly along the deductive path. Systematically eliminate internal conversational monologues ("let's see", "hmm", "wait", "now let me check"). Discard rhetorical hesitation; execute continuous deductive steps.
+3. Anti-Pivot Invariant: Never emit reflexive hesitation pivots ("Wait...", "On second thought...", "Hold on...") unless a concrete mathematical, programmatic, or factual contradiction has been explicitly isolated. In the absence of an identified contradiction, maintain unbroken forward momentum.
+4. Active Disproof Gate: Never declare an answer complete on surface plausibility alone. Before unlocking exit, stress-test your candidate solution against the initial constraints and degenerate edge cases (nulls, zero, off-by-one, boundary limits, and trivial counterexamples).
+5. Objective Early Exit: The instant your solution withstands active constraint verification, terminate thinking immediately and deliver the final answer. Never pad, stall, or manufacture doubt once the proof holds.
+6. Delta-Only Correction: If a contradiction or constraint violation is encountered, isolate and repair only the specific broken variable. Never regress into circular overthinking loops or full restarts.
+7. Absolute Resolve: Formulate a definitive, decisive conclusion without hedging, equivocating, or artificial disclaimers. Correctness and crisp utility are the sole metrics.
+{%- endset %}
+
+{%- set terse_core -%}
+Operational Directives:
+- Zero preamble, pleasantries, or question restatements.
+- Deliver direct, unhedged answers with maximum information density.
+- Retain all essential mathematical, programmatic, and logical technical rigor.
+- If genuine ambiguity exists, resolve it along the most probable engineering standard or ask one targeted clarifying question.
+{%- endset %}
+
+{%- set inst_hermes -%}
+Reasoning effort: Hermes — [L1] (rapid instinct).
+Mindset: High-velocity execution. Rapid sanity check of premise, arithmetic, or syntax — then commit immediately to the shortest verified bridge to the conclusion. Conclude immediately once obvious.
+{%- endset %}
+{%- set inst_apollo -%}
+Reasoning effort: Apollo — [L2] (disciplined deduction).
+Mindset: Structured, transparent logic. Isolate given constraints, trace linear implications with zero detour, and exit thinking the instant premise validation is reached.
+{%- endset %}
+{%- set inst_artemis -%}
+Reasoning effort: Artemis — [L3] (boundary & failure audit).
+Mindset: Rigorous boundary validation. Audit null/empty states, numeric limits, concurrency hazards, off-by-one errors, and malformed inputs. Fortify against edge cases, then terminate thinking immediately.
+{%- endset %}
+{%- set inst_athena -%}
+Reasoning effort: Athena — [L4] (strategic architecture).
+Mindset: Modular synthesis. Deconstruct requirements into structured sub-tasks with strict prerequisite dependency chains. Weigh concrete trade-offs (performance vs maintainability, latency vs throughput) and execute the optimal vector.
+{%- endset %}
+{%- set inst_prometheus -%}
+Reasoning effort: Prometheus — [L5] (defensive engineering).
+Mindset: Second-order systemic modeling. Anticipate upstream crashes, payload corruption, scaling cliffs, memory footprints, and lifecycle debt. Embed fault tolerance and graceful degradation directly into the design.
+{%- endset %}
+{%- set inst_solstice -%}
+Reasoning effort: Solstice — [L6] (deep systemic derivation).
+Mindset: Axiomatic derivation. Establish fundamental invariants, formulate distinct candidate architectures, stress-test each against boundary constraints, and converge on the dominant derivation with zero assumptions taken on faith.
+{%- endset %}
+{%- set inst_hyperion -%}
+Reasoning effort: Hyperion — [L7] (first-principles synthesis).
+Mindset: Comprehensive first-principles synthesis. Decompose problems to atomic ground truths. Maintain continuous forward momentum across all proof surfaces. Immediate exit the instant resolution is achieved.
+{%- endset %}
+{%- set inst_einstein -%}
+Reasoning effort: Einstein — [L8] (theoretical mastery).
+Mindset: Invariant reduction and breakthrough synthesis. Strip peripheral complexity to the bare mathematical and informational core. Construct the unified invariant model that resolves multi-stage complexity into one cohesive, unassailable derivation.
+{%- endset %}
+{%- set inst_oracle -%}
+Reasoning effort: Oracle — [L9] (proof-grade authority).
+Mindset: Exhaustive formal verification. Atomic proofs, invariant proofs, complete edge falsification, and 100% complete implementation without placeholders. Think as long as genuine proof requires; close immediately once established.
+{%- endset %}
+{%- set inst_proteus -%}
+Reasoning effort: Proteus — [L10] (autonomous freehand reasoning; default).
+Mindset: Freehand cognitive autonomy. You are not bound by artificial tiers, rigid categories, or predetermined quotas. Freehand exactly the depth, structure, and rigor required by the problem's own constraints:
+- Autonomous Execution: Seamlessly weave whatever analytical techniques the solution demands—boundary audits, architectural trade-offs, defensive modeling, or axiomatic proofs—without categorizing yourself into rigid stages.
+- Unbroken Forward Momentum: Eliminate all self-conversational chatter ("let's see", "hmm", "wait"). Advance strictly through deductive steps.
+- Active Verification & Exit: Stress-test your derivation against initial boundary constraints; the millisecond the solution is verified and holds, terminate thinking immediately and deliver the final answer.
+{%- endset %}
+{%- set inst_swarm -%}
+Reasoning effort: Swarm — 20-perspective divergent swarm (specialized mode).
+Mindset: Four-phase convergent breakdown. Phase 1: Disassembly to core parameters. Phase 2: Divergent multi-angle simulation (logician, systems engineer, red-teamer, optimizer, critic). Phase 3: Cross-pollination and tension resolution. Phase 4: Convergence onto master deliverable.
+Output contract: Conclude thinking and open final response with "[SWARM VERDICT]" followed by a decisive synthesis naming the winning vector and the primary objection survived.
+{%- endset %}
+{%- set inst_deep_swarm -%}
+Reasoning effort: Council — adversarial research council (specialized mode).
+Mindset: Five-protocol institutional deliberation. Protocol 1: Parameter calibration and success criteria. Protocol 2: Multi-specialist panel assembly. Protocol 3: Adversarial debate and stress-testing. Protocol 4: Trade-off scoring matrix. Protocol 5: Master architecture.
+Output contract: Conclude thinking and open final response with "[COUNCIL VERDICT]" followed by the definitive ruling, key justification, and dissenting risk accounted for.
+{%- endset %}
+
+{#- ================================================================== -#}
+{#- S1 RESOLUTION CORE — one pass, one state, one resolver.             -#}
+{#- ================================================================== -#}
+
+{#- Baseline: runtime kwarg (session default). thinking_level supported. -#}
+{%- set _kwarg_effort = '' %}
+
+{%- set reg_ns = namespace(active=false) %}
+{%- if (regular is defined and regular) or (mode is defined and mode in ('regular', 'vanilla', 'standard', 'default', 'clean')) %}
+    {%- set reg_ns.active = true %}
+{%- endif %}
+{%- for msg in messages %}
+    {%- if msg.content is string and ('[regular]' in msg.content or '[REGULAR]' in msg.content or '[vanilla]' in msg.content or '[standard]' in msg.content or '[default]' in msg.content) %}
+        {%- set reg_ns.active = true %}
+    {%- endif %}
+{%- endfor %}
+{%- set is_explicit_regular = reg_ns.active %}
+{%- if is_explicit_regular %}
+    {%- set _kwarg_effort = 'regular' %}
+{%- endif %}
+{%- if reasoning_effort is defined and reasoning_effort is not none %}
+    {%- set _kwarg_effort = reasoning_effort | string | lower | trim %}
+{%- elif thinking_level is defined and thinking_level is not none %}
+    {%- set _kwarg_effort = thinking_level | string | lower | trim %}
+{%- endif %}
+{%- set _initial_thinking = enable_thinking %}
+{%- set _initial_effort = '10' %}
+{%- set _depth_explicit = false %}
+{%- if _kwarg_effort %}
+    {%- set _depth_explicit = true %}
+    {%- if _kwarg_effort in ('none', 'off', '0', 'mortal', 'disabled', 'regular', 'vanilla', 'standard', 'default', 'clean') %}
+        {%- set _initial_thinking = false %}
+    {%- else %}
+        {%- set _initial_effort = _kwarg_effort %}
+    {%- endif %}
+{%- endif %}
+{%- set ns_state = namespace(thinking=_initial_thinking, effort=_initial_effort, mode='level', silent_profile=false) %}
+{%- if auto_disable_thinking_with_tools and _has_tools %}
+    {%- set ns_state.thinking = false %}
+{%- endif %}
+
+{#- Unified scan pass: collect mode tags, inline signals, cleaned messages. -#}
+{#- Later signals override earlier ones (mid-chat re-escalation works).     -#}
+{%- set store = namespace(messages=[], raw_mode='', saw_inline=false) %}
+{%- if not messages %}
+    {{- raise_exception('No messages provided.') }}
+{%- endif %}
+{%- for msg in messages %}
+    {%- set _txt = scan_text(msg.content) | trim %}
+    {%- set _role = msg.role %}
+    {%- set _is_steering = (_role == 'system' or _role == 'developer' or _role == 'user') %}
+    {%- set _tagged = ('{REASON:' in _txt) or ('[MODE:' in _txt) %}
+    {%- set _low = _txt | lower %}
+    {#- Does THIS message carry any inline signal? (multi-modal safe: text-only scan) -#}
+    {#- NB: namespace probe, because plain set inside a for-loop does not -#}
+    {#- propagate to the enclosing scope in Jinja2.                        -#}
+    {%- set _hi = namespace(v=_tagged) %}
+    {%- if _is_steering and '<|think_' in _low %}
+        {%- set _hi.v = true %}
+    {%- endif %}
+    {%- if _is_steering and not _hi.v %}
+        {%- for n in range(11) %}
+            {%- if '[l' ~ n ~ ']' in _low %}
+                {%- set _hi.v = true %}
+            {%- endif %}
+        {%- endfor %}
+    {%- endif %}
+    {%- set _has_inline = _hi.v %}
+    {#- Inline think-tags + [L#] (steering roles only). Later messages win. -#}
+    {%- if _is_steering %}
+        {%- if '<|think_off|>' in _low %}
+            {%- set ns_state.thinking = false %}
+            {%- set store.saw_inline = true %}
+        {%- elif '<|think_on|>' in _low %}
+            {%- set ns_state.thinking = true %}
+            {%- set store.saw_inline = true %}
+        {%- elif '<|think_extreme|>' in _low or '<|think_max|>' in _low %}
+            {%- set ns_state.thinking = true %}
+            {%- set ns_state.effort = '9' %}
+            {%- set ns_state.mode = 'level' %}
+            {%- set store.saw_inline = true %}
+        {%- elif '<|think_ultracode|>' in _low %}
+            {%- set ns_state.thinking = true %}
+            {%- set ns_state.effort = '8' %}
+            {%- set ns_state.mode = 'level' %}
+            {%- set store.saw_inline = true %}
+        {%- elif '<|think_xhigh|>' in _low %}
+            {%- set ns_state.thinking = true %}
+            {%- set ns_state.effort = '7' %}
+            {%- set ns_state.mode = 'level' %}
+            {%- set store.saw_inline = true %}
+        {%- elif '<|think_high|>' in _low %}
+            {%- set ns_state.thinking = true %}
+            {%- set ns_state.effort = '6' %}
+            {%- set ns_state.mode = 'level' %}
+            {%- set store.saw_inline = true %}
+        {%- elif '<|think_medium|>' in _low %}
+            {%- set ns_state.thinking = true %}
+            {%- set ns_state.effort = '4' %}
+            {%- set ns_state.mode = 'level' %}
+            {%- set store.saw_inline = true %}
+        {%- elif '<|think_low|>' in _low %}
+            {%- set ns_state.thinking = true %}
+            {%- set ns_state.effort = '2' %}
+            {%- set ns_state.mode = 'level' %}
+            {%- set store.saw_inline = true %}
+        {%- elif '<|think_minimal|>' in _low %}
+            {%- set ns_state.thinking = true %}
+            {%- set ns_state.effort = '1' %}
+            {%- set ns_state.mode = 'level' %}
+            {%- set store.saw_inline = true %}
+        {%- endif %}
+        {%- if '[l10]' in _low %}
+            {%- set ns_state.effort = '10' %}
+            {%- set ns_state.mode = 'level' %}
+            {%- set ns_state.thinking = true %}
+            {%- set store.saw_inline = true %}
+        {%- else %}
+            {%- for n in range(10) %}
+                {%- if '[l' ~ n ~ ']' in _low %}
+                    {%- set ns_state.effort = n | string %}
+                    {%- set ns_state.mode = 'level' %}
+                    {%- set store.saw_inline = true %}
+                    {%- if n == 0 %}
+                        {%- set ns_state.thinking = false %}
+                    {%- else %}
+                        {%- set ns_state.thinking = true %}
+                    {%- endif %}
+                {%- endif %}
+            {%- endfor %}
+        {%- endif %}
+    {%- endif %}
+    {#- {REASON:...} / [MODE:...] extraction (any role). -#}
+    {%- set _tagged = ('{REASON:' in _txt) or ('[MODE:' in _txt) %}
+    {%- if _tagged %}
+        {%- set _raw_reason = '' %}
+        {%- if '{REASON:' in _txt %}
+            {%- set _raw_reason = _txt.split('{REASON:')[1].split('}')[0] %}
+        {%- elif '[MODE:' in _txt %}
+            {%- set _raw_reason = _txt.split('[MODE:')[1].split(']')[0] %}
+        {%- endif %}
+        {%- if _raw_reason %}
+            {%- set _mode_raw = _raw_reason | string | lower | trim %}
+            {%- set store.raw_mode = _mode_raw %}
+            {%- if _mode_raw.startswith('i') and _mode_raw | length > 1 %}
+                {%- set ns_state.effort = _mode_raw[1:] %}
+                {%- set ns_state.mode = 'level' %}
+                {%- set ns_state.thinking = false %}
+                {%- set ns_state.silent_profile = true %}
+                {%- set store.saw_inline = true %}
+            {%- else %}
+                {%- set ns_state.effort = _mode_raw %}
+                {%- set ns_state.mode = 'level' %}
+                {%- set store.saw_inline = true %}
+                {%- if _mode_raw in ('0', 'mortal', 'off', 'none', 'direct', 'chat', 'disabled', 'regular', 'vanilla', 'standard', 'default', 'clean') %}
+                    {%- set ns_state.thinking = false %}
+                {%- else %}
+                    {%- set ns_state.thinking = true %}
+                {%- endif %}
+            {%- endif %}
+        {%- endif %}
+    {%- endif %}
+    {#- Build cleaned message store. Messages WITHOUT inline signals pass -#}
+    {#- through untouched, so multi-modal parts (images/videos) survive.     -#}
+    {%- if _tagged and _role == 'assistant' %}
+        {%- set _clean = strip_mode_tag(_txt) | trim %}
+        {%- set store.messages = store.messages + [{'role': _role, 'content': _clean, 'tool_calls': (msg.tool_calls if msg.tool_calls is defined else none), 'reasoning_content': (msg.reasoning_content if msg.reasoning_content is defined else none), 'thinking': (msg.thinking if msg.thinking is defined else none), 'reasoning': (msg.reasoning if msg.reasoning is defined else none)}] %}
+    {%- elif _is_steering and _has_inline %}
+        {#- Multi-modal aware strip: clean text items, keep image/video parts. -#}
+        {%- if msg.content is string %}
+            {%- set _clean = strip_control_tags(_txt) | trim %}
+            {%- set store.messages = store.messages + [{'role': _role, 'content': _clean}] %}
+        {%- elif msg.content is iterable and msg.content is not mapping %}
+            {%- set _nc = namespace(items=[]) %}
+            {%- for item in msg.content %}
+                {%- if item is mapping and 'text' in item and item.text is string %}
+                    {%- set _nc.items = _nc.items + [{'type': 'text', 'text': strip_control_tags(item.text) | trim}] %}
+                {%- else %}
+                    {%- set _nc.items = _nc.items + [item] %}
+                {%- endif %}
+            {%- endfor %}
+            {%- set store.messages = store.messages + [{'role': _role, 'content': _nc.items}] %}
+        {%- else %}
+            {%- set store.messages = store.messages + [msg] %}
+        {%- endif %}
+    {%- else %}
+        {%- set store.messages = store.messages + [msg] %}
+    {%- endif %}
+{%- endfor %}
+{%- set messages = store.messages %}
+{%- set _depth_explicit = (_depth_explicit or store.saw_inline) %}
+
+{#- Continuous depth: pure integers 10-100 map onto the spectrum band. -#}
+{#- 0-9 stay legacy level numbers so old clients keep exact behaviour.  -#}
+{#- NB: int-filter round-trip instead of .isdigit() — minja (llama.cpp) -#}
+{#- does not implement string.isdigit().                                -#}
+{%- set _eff_int = ns_state.effort | int %}
+{%- if ns_state.mode == 'level' and ns_state.effort is string and (_eff_int | string) == ns_state.effort and _eff_int >= 11 %}
+    {%- set _n = ns_state.effort | int %}
+    {%- set ns_state.thinking = true %}
+    {%- if _n <= 14 %}
+        {%- set ns_state.effort = '1' %}
+    {%- elif _n <= 29 %}
+        {%- set ns_state.effort = '2' %}
+    {%- elif _n <= 44 %}
+        {%- set ns_state.effort = '3' %}
+    {%- elif _n <= 59 %}
+        {%- set ns_state.effort = '4' %}
+    {%- elif _n <= 69 %}
+        {%- set ns_state.effort = '5' %}
+    {%- elif _n <= 79 %}
+        {%- set ns_state.effort = '6' %}
+    {%- elif _n <= 89 %}
+        {%- set ns_state.effort = '7' %}
+    {%- elif _n <= 96 %}
+        {%- set ns_state.effort = '8' %}
+    {%- else %}
+        {%- set ns_state.effort = '9' %}
+    {%- endif %}
+{%- endif %}
+
+{#- Depth-tool coupling, part A: trailing tool-failure streak pre-pass. -#}
+{%- set _streak = namespace(value=0) %}
+{%- for msg in messages %}
+    {%- if msg.role == 'tool' %}
+        {%- set _tc = scan_text(msg.content) | trim %}
+        {%- if classify_tool_output(_tc) | trim == 'error' %}
+            {%- set _streak.value = _streak.value + 1 %}
+        {%- else %}
+            {%- set _streak.value = 0 %}
+        {%- endif %}
+    {%- elif msg.role == 'user' %}
+        {%- set _streak.value = 0 %}
+    {%- endif %}
+{%- endfor %}
+
+{#- Depth-tool coupling, part B: state adjustment BEFORE rendering. -#}
+{#- Collapse: tools attached, no explicit depth signal → [L4].          -#}
+{#- Escalate: 2+ consecutive tool failures → +1 band, capped at [L7].   -#}
+{#- Swarm/council profiles are never auto-tuned (non-numeric effort).   -#}
+{%- if _has_tools and not _depth_explicit and ns_state.thinking %}
+    {%- set ns_state.effort = '4' %}
+{%- endif %}
+{%- if _streak.value >= 2 and ns_state.thinking %}
+    {%- set _cur = ns_state.effort if ns_state.effort else '7' %}
+    {%- if _cur == '1' %}
+        {%- set ns_state.effort = '2' %}
+    {%- elif _cur == '2' %}
+        {%- set ns_state.effort = '3' %}
+    {%- elif _cur == '3' %}
+        {%- set ns_state.effort = '4' %}
+    {%- elif _cur == '4' %}
+        {%- set ns_state.effort = '5' %}
+    {%- elif _cur == '5' %}
+        {%- set ns_state.effort = '6' %}
+    {%- elif _cur == '6' %}
+        {%- set ns_state.effort = '7' %}
+    {%- elif _cur in ('7', '8', '9') %}
+        {%- set ns_state.effort = '7' %}
+    {%- endif %}
+{%- endif %}
+
+{#- Alias resolver: number / name / compat alias → profile. Runs AFTER -#}
+{#- coupling, so the rendered profile always matches the final effort.  -#}
+{#- Unknown input degrades gracefully to [L7]; it never hard-fails.     -#}
+{#- Silent modes (i-prefix) still inject the depth profile: the model   -#}
+{#- reasons at that quality internally while thinking tags stay closed. -#}
+{%- set reasoning_instructions = '' %}
+{%- if ns_state.thinking or ns_state.silent_profile %}
+    {%- set target_mode = ns_state.effort if ns_state.effort else '10' %}
+    {%- if target_mode in ('10', 'proteus', 'dynamic', 'auto', 'adaptive', 'fluid', 'default') %}
+        {%- set reasoning_instructions = inst_proteus %}
+    {%- elif target_mode in ('1', 'hermes', 'ulow', 'ultra-low', 'micro', 'minimal') %}
+        {%- set reasoning_instructions = inst_hermes %}
+    {%- elif target_mode in ('2', 'apollo', 'low') %}
+        {%- set reasoning_instructions = inst_apollo %}
+    {%- elif target_mode in ('3', 'artemis', 'lmed', 'low-medium') %}
+        {%- set reasoning_instructions = inst_artemis %}
+    {%- elif target_mode in ('4', 'athena', 'medium', 'med') %}
+        {%- set reasoning_instructions = inst_athena %}
+    {%- elif target_mode in ('5', 'prometheus', 'mhigh', 'medium-high') %}
+        {%- set reasoning_instructions = inst_prometheus %}
+    {%- elif target_mode in ('6', 'solstice', 'high') %}
+        {%- set reasoning_instructions = inst_solstice %}
+    {%- elif target_mode in ('7', 'hyperion', 'xhigh', 'default', 'extreme') %}
+        {%- set reasoning_instructions = inst_hyperion %}
+    {%- elif target_mode in ('8', 'einstein', 'uhigh', 'ultra-high') %}
+        {%- set reasoning_instructions = inst_einstein %}
+    {%- elif target_mode in ('9', 'oracle', 'amax', 'max', 'absolute-max') %}
+        {%- set reasoning_instructions = inst_oracle %}
+    {%- elif target_mode in ('swarm', 'einstein-swarm', '20-swarm', 'uhigh-swarm', 'divergent') %}
+        {%- set reasoning_instructions = inst_swarm %}
+    {%- elif target_mode in ('deep-swarm', 'oracle-swarm', 'council', 'amax-swarm', 'deep-research', 'spoon', 'adversarial') %}
+        {%- set reasoning_instructions = inst_deep_swarm %}
+    {%- else %}
+        {%- set reasoning_instructions = inst_proteus %}
+    {%- endif %}
+{%- endif %}
+
+{#- ================================================================== -#}
+{#- S3 RENDER PIPELINE — ChatML emission.                               -#}
+{#- ================================================================== -#}
+
+{#- Leading system-message grouping. -#}
+{%- set head = namespace(count=0, seen_non_system=false) %}
+{%- for message in messages %}
+    {%- set _is_sys = (message.role == 'system' or message.role == 'developer') %}
+    {%- if _is_sys and not head.seen_non_system %}
+        {%- set head.count = head.count + 1 %}
+    {%- else %}
+        {%- set head.seen_non_system = true %}
+    {%- endif %}
+{%- endfor %}
+{%- set sys_state = namespace(content='') %}
+{%- for message in messages[:head.count] %}
+    {%- set _part = render_content(message.content, false) | trim %}
+    {%- if _part %}
+        {%- if sys_state.content %}
+            {%- set sys_state.content = sys_state.content ~ '\n\n' ~ _part %}
+        {%- else %}
+            {%- set sys_state.content = _part %}
+        {%- endif %}
+    {%- endif %}
+{%- endfor %}
+{%- set _sc = sys_state.content %}
+{%- set _msgs = messages[head.count:] %}
+
+{%- set _terse_active = terse if terse is defined else (not is_explicit_regular) %}
+{%- if _terse_active %}
+    {%- if not _sc %}
+        {%- set _sc = terse_core | trim %}
+    {%- else %}
+        {%- set _sc = (_sc | trim) ~ '\n\n' ~ (terse_core | trim) %}
+    {%- endif %}
+{%- endif %}
+
+{#- Some runtimes prepend their own tool protocol; stand down if seen. -#}
+{%- set _runtime_tool_protocol = (_sc is defined and _sc and '[TOOL_REQUEST]' in _sc) %}
+{%- if suppress_tool_instructions is not none %}
+    {%- set _suppress_tools = suppress_tool_instructions %}
+{%- else %}
+    {%- set _suppress_tools = _runtime_tool_protocol %}
+{%- endif %}
+
+{#- System emission: profile + soft contract + tools. -#}
+{{- bos_token -}}
+{%- if reasoning_instructions or _sc or (_has_tools and not _suppress_tools) %}
+    {{- '<start_of_turn>system\n' }}
+    {%- if reasoning_instructions %}
+        {{- reasoning_instructions ~ '\n\n' ~ soft_budget_contract -}}
+    {{- '\n\n' }}
+    {%- endif %}
+    {%- if _has_tools and not _suppress_tools %}
+        {{- '# Tools\n\nYou have access to the following functions:\n\n<tools>' }}
+        {%- for tool in tools %}
+            {{- '\n' }}
+            {{- tool | tojson }}
+        {%- endfor %}
+        {{- '\n</tools>' }}
+        {%- if _tool_format == 'json' %}
+            {{- '\n\nIf you choose to call a function ONLY reply in the following format with NO suffix:\n\n' }}
+            {%- if ns_state.thinking %}
+                {{- '<think>\nBrief explanation of tool call\n</think>\n' }}
+            {%- endif %}
+            {{- '<tool_call>\n{"name": "example_function_name", "arguments": {"example_parameter_1": "value_1", "example_parameter_2": "This is the value for the second parameter"}}\n</tool_call>\n\n<IMPORTANT>\nReminder:\n' }}
+            {{- '- Function calls MUST follow the specified format: a single JSON object with "name" and "arguments" keys inside <tool_call></tool_call> XML tags.\n- The <tool_call> tag MUST be at the very beginning of a new line.\n- To call multiple functions, output a separate, completely closed <tool_call></tool_call> block for EACH function. Do NOT nest <tool_call> blocks.\n- If you have all necessary data, provide your final answer directly to the user without any tool call.\n</IMPORTANT>' }}
+        {%- else %}
+            {{- '\n\nIf you choose to call a function ONLY reply in the following format with NO suffix:\n\n' }}
+            {%- if ns_state.thinking %}
+                {{- '<think>\nBrief explanation of tool call\n</think>\n' }}
+            {%- endif %}
+            {{- '<tool_call>\n<function=example_function_name>\n<parameter=example_parameter_1>\nvalue_1\n</parameter>\n<parameter=example_parameter_2>\nThis is the value for the second parameter\n</parameter>\n</function>\n</tool_call>\n\n<IMPORTANT>\nReminder:\n' }}
+            {{- '- Function calls MUST follow the specified format: an inner <function=...></function> block must be nested within <tool_call></tool_call> XML tags.\n- The <tool_call> and <function> tags MUST be at the very beginning of a new line.\n- To call multiple functions, output a separate, completely closed <tool_call></tool_call> block for EACH function. Do NOT nest <tool_call> blocks.\n- If you have all necessary data, provide your final answer directly to the user without any tool call.\n</IMPORTANT>' }}
+        {%- endif %}
+        {%- if _sc %}
+            {{- '\n\n' + _sc }}
+        {%- endif %}
+        {{- '<end_of_turn>\n' }}
+    {%- else %}
+        {%- if _sc %}
+            {{- _sc + '<end_of_turn>\n' }}
+        {%- else %}
+            {{- '<end_of_turn>\n' }}
+        {%- endif %}
+    {%- endif %}
+{%- endif %}
+
+{#- Last real user turn (for preserve_thinking tail logic). -#}
+{%- set _last_idx = _msgs | length - 1 %}
+{%- set ns = namespace(multi_step_tool=true, last_query_index=_last_idx) %}
+{%- for message in _msgs[::-1] %}
+    {%- set index = (_msgs | length - 1) - loop.index0 %}
+    {%- if ns.multi_step_tool and message.role == 'user' %}
+        {%- set _rc = render_content(message.content, false) | trim %}
+        {%- if not (_rc.startswith('<tool_response>') and _rc.endswith('</tool_response>')) %}
+            {%- set ns.multi_step_tool = false %}
+            {%- set ns.last_query_index = index %}
+        {%- endif %}
+    {%- endif %}
+{%- endfor %}
+{%- if ns.multi_step_tool %}
+    {%- if _last_idx > 50 %}
+        {%- set ns.last_query_index = _last_idx %}
+    {%- else %}
+        {%- set ns.last_query_index = 0 %}
+    {%- endif %}
+{%- endif %}
+
+{#- Message render loop. -#}
+{%- set ns2 = namespace(prev_role='', consecutive_failures=0) %}
+{%- for message in _msgs %}
+    {%- set is_system = (message.role == "system" or message.role == "developer") %}
+    {%- set content = render_content(message.content, true, is_system) | trim %}
+    {%- if is_system %}
+        {{- '<start_of_turn>system\n' + content + '<end_of_turn>\n' }}
+    {%- elif message.role == 'user' %}
+        {%- set ns2.consecutive_failures = 0 %}
+        {{- '<start_of_turn>user\n' + (strip_control_tags(content) | trim) + '<end_of_turn>\n' }}
+    {%- elif message.role == 'assistant' %}
+        {%- set reasoning_content = '' %}
+        {%- set _explicit_reasoning = '' %}
+        {%- if message.reasoning_content is defined and message.reasoning_content is not none %}
+            {%- if message.reasoning_content is string %}
+                {%- set _explicit_reasoning = message.reasoning_content %}
+            {%- else %}
+                {%- set _explicit_reasoning = message.reasoning_content | string %}
+            {%- endif %}
+        {%- elif message.thinking is defined and message.thinking is not none %}
+            {%- if message.thinking is string %}
+                {%- set _explicit_reasoning = message.thinking %}
+            {%- else %}
+                {%- set _explicit_reasoning = message.thinking | string %}
+            {%- endif %}
+        {%- elif message.reasoning is defined and message.reasoning is not none %}
+            {%- if message.reasoning is string %}
+                {%- set _explicit_reasoning = message.reasoning %}
+            {%- else %}
+                {%- set _explicit_reasoning = message.reasoning | string %}
+            {%- endif %}
+        {%- endif %}
+        {%- if _explicit_reasoning %}
+            {%- set _lead_end = '' %}
+            {%- if content.startswith('<think>') and '</think>' in content %}
+                {%- set _lead_end = '</think>' %}
+            {%- elif content.startswith('<thinking>') and '</thinking>' in content %}
+                {%- set _lead_end = '</thinking>' %}
+            {%- elif content.startswith('</think>') %}
+                {%- set _lead_end = '</think>' %}
+            {%- elif content.startswith('</thinking>') %}
+                {%- set _lead_end = '</thinking>' %}
+            {%- endif %}
+            {%- if _lead_end %}
+                {%- set content = content.split(_lead_end)[-1].lstrip('\n') %}
+            {%- endif %}
+            {%- set reasoning_content = _explicit_reasoning %}
+        {%- else %}
+            {%- set _think_end = '' %}
+            {%- if content.startswith('</think>') %}
+                {%- set _think_end = '</think>' %}
+            {%- elif content.startswith('</thinking>') %}
+                {%- set _think_end = '</thinking>' %}
+            {%- elif '\n</think>' in content %}
+                {%- set _think_end = '\n</think>' %}
+            {%- elif '\n</thinking>' in content %}
+                {%- set _think_end = '\n</thinking>' %}
+            {%- elif '\n</ think>' in content %}
+                {%- set _think_end = '\n</ think>' %}
+            {%- elif '\n</think >' in content %}
+                {%- set _think_end = '\n</think >' %}
+            {%- elif content.startswith('<think>') and '</think>' in content %}
+                {%- set _think_end = '</think>' %}
+            {%- elif content.startswith('<thinking>') and '</thinking>' in content %}
+                {%- set _think_end = '</thinking>' %}
+            {%- endif %}
+            {%- if _think_end %}
+                {%- if 'thinking' in _think_end %}
+                    {%- set _think_start = '<thinking>' %}
+                {%- else %}
+                    {%- set _think_start = '<think>' %}
+                {%- endif %}
+                {%- set reasoning_content = content.split(_think_end)[0].rstrip('\n') %}
+                {%- if _think_start in reasoning_content %}
+                    {%- set reasoning_content = reasoning_content.split(_think_start)[-1].lstrip('\n') %}
+                {%- endif %}
+                {%- set content = content.split(_think_end)[-1].lstrip('\n') %}
+            {%- endif %}
+        {%- endif %}
+        {%- set reasoning_content = reasoning_content | trim %}
+        {%- if (_preserve_thinking or loop.index0 > ns.last_query_index) %}
+            {{- '<start_of_turn>model\n<think>\n' + reasoning_content + '\n</think>\n\n' + content }}
+        {%- else %}
+            {{- '<start_of_turn>model\n' + content }}
+        {%- endif %}
+        {%- if message.tool_calls is defined and message.tool_calls and message.tool_calls is iterable and message.tool_calls is not mapping %}
+            {%- for tool_call in message.tool_calls %}
+                {%- if tool_call.function is defined and tool_call.function is not none %}
+                    {%- set tc = tool_call.function %}
+                {%- else %}
+                    {%- set tc = tool_call %}
+                {%- endif %}
+                {%- set tc_name = tc.name if (tc.name is defined and tc.name is not none) else '' %}
+                {%- if _tool_format == 'json' %}
+                    {%- if loop.first %}
+                        {%- if content | trim %}
+                            {{- '\n\n' }}
+                        {%- endif %}
+                    {%- else %}
+                        {{- '\n' }}
+                    {%- endif %}
+                    {%- set _args = '{}' %}
+                    {%- if tc.arguments is defined and tc.arguments is not none %}
+                        {%- if tc.arguments is mapping %}
+                            {%- set _args = tc.arguments | tojson %}
+                        {%- elif tc.arguments is string %}
+                            {%- if tc.arguments %}
+                                {%- set _args = tc.arguments %}
+                            {%- endif %}
+                        {%- else %}
+                            {%- set _args = tc.arguments | tojson %}
+                        {%- endif %}
+                    {%- endif %}
+                    {{- '<tool_call>\n{"name": ' }}{{- tc_name | tojson }}{{- ', "arguments": ' }}{{- _args }}{{- '}\n</tool_call>' }}
+                {%- else %}
+                    {%- if loop.first %}
+                        {%- if content | trim %}
+                            {{- '\n\n<tool_call>\n<function=' + tc_name + '>\n' }}
+                        {%- else %}
+                            {{- '<tool_call>\n<function=' + tc_name + '>\n' }}
+                        {%- endif %}
+                    {%- else %}
+                        {{- '\n<tool_call>\n<function=' + tc_name + '>\n' }}
+                    {%- endif %}
+                    {%- if tc.arguments is defined and tc.arguments is not none %}
+                        {%- if tc.arguments is mapping %}
+                            {%- for args_name, args_value in tc.arguments.items() %}
+                                {{- '<parameter=' + args_name + '>\n' }}
+                                {%- if args_value is string %}
+                                    {%- set _av = args_value %}
+                                {%- else %}
+                                    {%- set _av = args_value | tojson %}
+                                {%- endif %}
+                                {%- if max_tool_arg_chars > 0 and _av | length > max_tool_arg_chars %}
+                                    {{- _av[:max_tool_arg_chars] + '\n[TRUNCATED - original length ' ~ (_av | length | string) ~ ' chars]' }}
+                                {%- else %}
+                                    {{- _av }}
+                                {%- endif %}
+                                {{- '\n</parameter>\n' }}
+                            {%- endfor %}
+                        {%- else %}
+                            {%- if tc.arguments is string %}
+                                {%- set _raw_args = tc.arguments %}
+                            {%- else %}
+                                {%- set _raw_args = tc.arguments | tojson %}
+                            {%- endif %}
+                            {%- if _raw_args %}
+                                {%- if max_tool_arg_chars > 0 and _raw_args | length > max_tool_arg_chars %}
+                                    {{- _raw_args[:max_tool_arg_chars] + '\n[TRUNCATED - original length ' ~ (_raw_args | length | string) ~ ' chars]' }}
+                                {%- else %}
+                                    {{- _raw_args }}
+                                {%- endif %}
+                            {%- endif %}
+                        {%- endif %}
+                    {%- endif %}
+                    {{- '</function>\n</tool_call>' }}
+                {%- endif %}
+            {%- endfor %}
+        {%- endif %}
+        {{- '<end_of_turn>\n' }}
+    {%- elif message.role == 'tool' %}
+        {%- if classify_tool_output(content) | trim == 'error' %}
+            {%- set ns2.consecutive_failures = ns2.consecutive_failures + 1 %}
+        {%- else %}
+            {%- set ns2.consecutive_failures = 0 %}
+        {%- endif %}
+        {%- if ns2.prev_role != 'tool' %}
+            {{- '<|im_start|>user' }}
+        {%- endif %}
+        {%- set _is_json_payload = (_tool_format == 'json' and content | trim | length > 0 and (content | trim)[:1] in ('{', '[')) %}
+        {%- if not _is_json_payload and max_tool_response_chars > 0 and content | length > max_tool_response_chars %}
+            {%- set content = content[:max_tool_response_chars] + '\n[TRUNCATED - original length ' ~ (content | length | string) ~ ' chars]' %}
+        {%- endif %}
+        {{- '\n<tool_response>\n' + content }}
+        {%- if ns2.consecutive_failures >= 2 %}
+            {{- '\n\n⚠️ SYSTEM WARNING: ' ~ ns2.consecutive_failures ~ ' consecutive tool errors detected. Your previous approach is incorrect. You MUST use a fundamentally different approach or corrected arguments.' }}
+        {%- elif ns2.consecutive_failures == 1 %}
+            {{- '\n\n⚠️ SYSTEM WARNING: The previous tool call returned an error. Diagnose the failure and retry with completely corrected arguments.' }}
+        {%- endif %}
+        {{- '\n</tool_response>' }}
+        {%- if loop.last %}
+            {{- '<end_of_turn>\n' }}
+        {%- else %}
+            {%- set _next_role = _msgs[loop.index0 + 1].role %}
+            {%- if _next_role != 'tool' %}
+                {{- '<end_of_turn>\n' }}
+            {%- endif %}
+        {%- endif %}
+    {%- else %}
+        {{- '<start_of_turn>user\n[' + message.role + ']: ' + content + '<end_of_turn>\n' }}
+    {%- endif %}
+    {%- set ns2.prev_role = message.role %}
+{%- endfor %}
+
+{#- Generation prompt: open thinking when active (variable depth, the model -#}
+{#- decides how far to run), or pre-close it when disabled. -#}
+{%- if add_generation_prompt %}
+    {{- '<start_of_turn>model\n' }}
+    {%- if is_explicit_regular %}
+        {#- Pure regular mode: no think block -#}
+    {%- elif not ns_state.thinking %}
+        {{- '<think>\n\n</think>\n\n' }}
+    {%- else %}
+        {{- '<think>\n' }}
+    {%- endif %}
+{%- endif %}
