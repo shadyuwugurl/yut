@@ -1,0 +1,49 @@
+You're right to push for the v2.5.1+ baseline — the 30 constructs and 10 modes are already in the v3.0.0 draft, but they need to be consolidated against the **three native Spark modes (`none`, `low`, `high`)** and the runtime constraints we've established. Below is the consolidated feedback, followed by the exact uber prompt for Kimi K3.
+
+### 🩺 Feedback Before the Prompt
+
+**Training & RL.** Spark-X2.6 gained its agentic jump from post-training (SFT cold-start → domain-expert RL → multi-teacher distillation), not architecture . Your template pushes the model into 30 constructs it was **never explicitly RL-trained on** — especially the RP, identity, and persona constructs. Prompting alone will hold 70–80%; the last 20% (voice consistency, refusal calibration, non-leaking) would benefit from **self-play RL**. SPELL (Questioner/Answerer/Verifier) and Absolute Zero (proposer/solver without human data) are the two frameworks most directly applicable . If you ever fine-tune, start with `partner`, `friend`, `neurospicy`, and `uber_shrink` — they are the hardest to stabilise via prompt alone.
+
+**Benchmarks.** Spark-X2.6-4B scores **BFCL-V4 71.8**, **τ²-bench 86.9**, **SWE-bench Verified 62.8**, **LongBench v2 53.3** . Your template adds heavy system-prompt overhead. The most likely regression is **tool-calling accuracy** on BFCL-V4: if the system prompt crowds out the tool schema, that score drops. Run BFCL-V4 and τ²-bench **with and without** the template before trusting it in production.
+
+**Engrams.** "Engram" in current practice means **external memory orchestration** — typed memory records (episodic, semantic, procedural) persisted in a database and retrieved before generation . A Jinja template has **no state** and cannot hold an engram. What you *can* do is leave a **commented hook** where an engram MCP server injects recalled context. The Kimi prompt includes this as an optional extension.
+
+---
+
+### 📜 Uber Prompt for Kimi K3 (v3.1.0 Target)
+
+Copy everything between the triple backticks into Kimi K3.
+
+```
+You are an expert LLM chat-template engineer specialising in Jinja for llama.cpp (minja), vLLM, and Hugging Face transformers. Your task is to consolidate the Sharp-Spark template below into a single, production-ready `.jinja` file targeting XHToken/Spark-X2.6-4B.
+
+## VERIFIED FACTS (do not contradict)
+- Control tokens: <｜start▁of▁sentence｜>, <｜end▁of▁sentence｜>, <|System|>, <|User|>, <|Bot|>, <|Tool|>, <think>, </think>, <tool_call>, <arg_key>, <arg_value>.
+- Spark-X2.6 supports THREE native thinking levels: `none` (enable_thinking=False), `low` (reasoning_effort="low"), `high` (reasoning_effort="high").
+- The template below already maps 10 Sharp-Spark modes onto these three native levels. **Do not change the mapping.**
+- The 30 constructs are already defined. **Do not remove any.**
+- `tojson(separators=...)` does not work in Jinja/minja — remove the `separators` argument entirely. Use `| tojson` with no arguments.
+- `fromjson` is not a standard Jinja filter — string tool arguments must pass through verbatim inside `<arg_value>`.
+- The `replace` chain using `'\n'` and `'\t'` literals is **unverified in minja**. If you know it will fail, replace those two literals with `' '` or drop the calls, and flag this in a comment.
+- `loop.previtem` / `loop.nextitem` are used for tool-message grouping. Flag as a minja compatibility risk in the header comment.
+
+## DELIVERABLE
+Return **only** the final `.jinja` file. Include:
+1. A corrected header comment stating native Spark modes are `none | low | high` (not `low | high`).
+2. Runtime notes at the top:
+   - llama.cpp: `--presence-penalty 1.0 --repeat-penalty 1.05 --reasoning-budget 8192`
+   - vLLM: `presence_penalty=1.0 repetition_penalty=1.05`
+3. A commented placeholder near the system block: `{# ENGRAM HOOK: an external engram MCP server may inject recalled memory here. The template itself is stateless. #}`.
+
+## THE TEMPLATE TO CONSOLIDATE
+[PASTE THE FULL SHARP-SPARK v3.0.0 TEMPLATE HERE — from the previous message, starting with `{#- Sharp-Spark v3.0.0` and ending with the generation prompt block.]
+```
+
+### ❓ Questions for You
+
+1. **Do you want me to paste the full v3.0.0 template inside the prompt for Kimi**, or will you paste it yourself? (I can include it in a follow-up if you prefer a single copy-paste block.)
+2. **The `extreme` mode for ERP/RP/Lit** — should it stay mapped to native `high` with the creative-validation block, or do you want it to attempt a runtime-level override (e.g., `max_reasoning_tokens` if the runtime supports it)? The template cannot enforce a longer budget on its own.
+3. **The 30 constructs** — are there any from the v3.0.0 list you want **removed** or **renamed** before Kimi consolidates? (The current list includes `yaoi_partner`, `yuri_partner`, `omegaverse`, `teacher`, `uber_shrink`, `furry`, `therian`, `kemonomimi`, `influencer_sfw`, `influencer_nsfw`, `neurospicy`, `trans_persona`, `enby_persona`, `intersex_persona`, `relationship_deep`, `kitbash`, plus the 14 core constructs.)
+4. **Engram hook** — do you want it as a **commented placeholder only**, or should I add a runtime-facing instruction that tells the model to *expect* injected memory in a specific token block?
+
+Once you confirm, I can either finalise the Kimi prompt (with the template embedded) or adjust the construct list before consolidation.
