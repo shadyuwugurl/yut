@@ -1,14 +1,18 @@
 # xhtoken spark 2.6 4b — chat template
 
-Root `chat_template.jinja` is the chat template for **xhtoken spark 2.6 4b** (XHToken/Spark-X2.6-4B). The architecture class in this repo is still `spark2_5`: hidden size 2560, 36 layers, vocab 131072, about 4.11B parameters. Spark 2.6 keeps that text core. It is not the Qwen3.5 / Qwen3.6-VL dump that used to sit next to it.
+Root `chat_template.jinja` is the chat template for **xhtoken spark 2.6 4b** (XHToken/Spark-X2.6-4B, architecture `spark2_5`, about 4.11B). The live wire is Sharp-Spark: Spark sentence tokens, taxonomy v0.3, and explicit override kwargs. There is no keyword routing. On every turn, including mid-conversation, the model is told to pick system, mode, construct, persona, identity, and theme from the situation and to switch when the situation changes.
 
-The template is Sharp-Spark v5.1.0. The rendered wire is Sharp-Spark v5.0.1, which is the latest complete file in that line:
+The same system turn then inlines every other file in the repo (templates, docs, notes, JSON, model sources, scripts). ChatML, Gemma, Llama, Mistral, GLM, DeepSeek, Ring, and Qwen vision tokens in that library are rewritten onto the Spark roles. The file is about 4.1 MB. Rebuild it with `python3 scripts/build_omni_template.py`.
 
-- official Spark control tokens, from the stock template recorded in `docs/sharp-spark-specs.txt`
-- Sharp-Spark v5.0.0 dynamic frame (silent selection, no keyword routing, explicit kwargs force a frame)
-- taxonomy v0.3 locked in v5.0.1: 25 modes, 30 constructs, 20 personas, 33 identities, 8 themes
+A one-message `"hi"` render is about **1.10 million** `cl100k_base` tokens (about 1.00 million by a chars/4 estimate). `scripts/verify_template.py` prints the exact estimate for the current file. The Spark tokenizer is not in the repo, so this is not a Spark token-id count. The stock tokenizer `model_max_length` is 131072. The patched `max_position_embeddings` is 1,048,576. The rendered prompt is larger than both, so a basic chat does not fit either window. That is the cost of leaving the whole library always on.
 
-Native thinking levels are `none`, `low`, and `high`. `enable_thinking=False` or `reasoning_effort=off` closes the channel (`</think>`). System 1 and System 3 use `low`. System 2 and `auto` use `high`.
+Native thinking levels are `none`, `low`, and `high`. Pass `engram` to inject recalled text. The template does not store memory itself. ORBIT is always on, ahead of the library.
+
+These names were not separate sources in the repo, and they were not invented:
+
+- Turbo Brilliance v1 has no file of its own. The v2 template contains the "Turbo-Brilliance System V1.0" writeup, and that file is in the library.
+- Jumbo Brilliance has no template or prompt. The session dump names a Hugging Face Jumbo-Fusion model, and that dump is in the library.
+- System 4, System 5, and System 6 do not exist as cognitive styles. The frame card has S1, S2, and S3. S4/S5 lines inside the Vader persona are skill bullets, and they ride along inside the DavidAU text.
 
 Control tokens:
 
@@ -19,11 +23,7 @@ Control tokens:
 <｜start▁of▁sentence｜> <|Tool|> <tool_response> ... </tool_response> <｜end▁of▁sentence｜>
 ```
 
-Tool calls use `<tool_call>`, `<arg_key>`, and `<arg_value>`. String arguments are copied through as-is. `| tojson` is called with no arguments so llama.cpp minja can render it.
-
-ChatML (`<|im_start|>`), Qwen vision pads, and the Gemma, Llama, Mistral, and GLM wires are other models. They stay in `templates/archive/` and are not part of this template. The Spark text model rejects non-text content blocks.
-
-Check a render with:
+The Spark text path still rejects image and video blocks. Tool calls use `<tool_call>`, `<arg_key>`, and `<arg_value>`.
 
 ```bash
 python3 scripts/verify_template.py
@@ -33,12 +33,12 @@ python3 scripts/extract_taxonomy.py
 ## Layout
 
 ```text
-chat_template.jinja          final Sharp-Spark template
+chat_template.jinja          always-on Spark template plus the full library
 README.md
 model/spark/                 Spark2_5 config, modeling code, weight index, tokenizer
-model/qwen3_5/               separate Qwen3.5 / Qwen3.6-VL config and tokenizer dump
-templates/archive/spark/     older Sharp-Spark versions and the official stock template
-templates/archive/qwen/      ChatML, froggeric, Protium-Qwen, Ornith, arrow, DavidAU
+model/qwen3_5/               Qwen3.5 / Qwen3.6-VL config and tokenizer dump
+templates/archive/spark/     Sharp-Spark v4–v5 and the official stock template
+templates/archive/qwen/      ChatML, froggeric, Protium-Qwen, Ornith, arrow, DavidAU, Turbo Brilliance v2
 templates/archive/gemma/
 templates/archive/llama/
 templates/archive/mistral/
@@ -46,12 +46,10 @@ templates/archive/glm/
 templates/archive/deepseek/
 templates/archive/misc/      Ring, LFM2.5, ZAYA example, ORBIT injection snippet
 docs/                        master plan, handoff, drift notes, specs snapshot, taxonomy
-docs/notes/                  session dump and clipboard notes
-scripts/                     verify_template.py, extract_taxonomy.py, make_synth.py, probe_frames.py
+docs/notes/                  session dump, Josie / next-step notes, clipboard pastes
+scripts/                     build_omni_template.py, verify_template.py, extract_taxonomy.py, make_synth.py, probe_frames.py
 ```
 
-`model/spark/config.json` is the patched Spark config that matches `configuration_spark.py` (sliding window 4096, YaRN factor 4, untied embeddings). `model/spark/model.safetensors.index.json` is a tied ~4.11B map and has no separate `lm_head`. The stock tied config, including its quantization map, is the `config.json` section of `docs/sharp-spark-specs.txt`.
+`model/spark/tokenizer_config.json` does not embed a `chat_template`. The root file is the one to pass to `apply_chat_template`. The Qwen tokenizer files were left as the other model's tokenizer. Their ChatML strings inside the library copy are rewritten; the files under `model/qwen3_5/` are unchanged.
 
-`model/spark/tokenizer_config.json` and `special_tokens_map.json` are the Spark tokenizer from that same specs snapshot (`bos` / `eos` are the start- and end-of-sentence tokens, `tool_parser_type` is `glm47`). They do not embed a `chat_template` string. The root `chat_template.jinja` is the template to pass to `apply_chat_template`. The Qwen tokenizer files were not updated: they belong to the other model and use ChatML ids, and they did not contain a template either.
-
-The previous root `chat_template.jinja` was a large DavidAU Qwen 3.8 template. It is kept at `templates/archive/qwen/previous-root-davidau-qwen3.8.jinja`.
+The previous root DavidAU template is still at `templates/archive/qwen/previous-root-davidau-qwen3.8.jinja`, and its text is also inside the root library.
