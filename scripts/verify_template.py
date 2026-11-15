@@ -49,8 +49,8 @@ def live(text: str) -> str:
 
 
 def head(text: str) -> str:
-    """System instructions before the inlined library."""
-    return text.split("===== LIBRARY =====", 1)[0]
+    """System instructions before the sourced catalog."""
+    return text.split("===== CATALOG =====", 1)[0]
 
 
 def main():
@@ -254,36 +254,45 @@ def main():
         "explicit construct=coder adds exactly one forced block",
     )
 
-    # 11. Library content from the rest of the repo, converted onto Spark tokens
+    # 11. Sourced catalog and the owner's frame. Engram is gone.
     for label, needle in (
-        ("Josie", "J.O.S.I.E."),
-        ("Turbo Brilliance", "Turbo-Brilliance"),
-        ("ORBIT", "ORBIT Reasoning Layer"),
-        ("Protium gates", "PROTIUM OBJECTIVE-GATED"),
+        ("owner frame S1", "S1 FAST"),
+        ("owner frame S2", "S2 DELIBERATE"),
+        ("owner frame S3", "S3 META"),
+        ("owner constructs", "CONSTRUCTS (dial 2"),
+        ("Turbo Brilliance V2", "Turbo-Brilliance System V2.0"),
+        ("Turbo Brilliance V1 help", "Turbo-Brilliance System V1.0"),
         ("AGI modes", "agi-teacher-coder"),
-        ("froggeric", "froggeric"),
-        ("arrow", "arrow4.0"),
-        ("engram hook", "ENGRAM HOOK"),
-        ("looping", "num_loops"),
-        ("taxonomy", '"taxonomy": "v0.3"'),
-        ("Jumbo model name from the session dump", "Jumbo-Fusion"),
-        ("S1", "S1 FAST"),
-        ("S2", "S2 DELIBERATE"),
-        ("S3", "S3 META"),
+        ("Jumbo patch", "CRITICAL CORE: INSTRUCTIONS"),
+        ("looping premise", "re-ponder"),
+        ("Deckard", "Deckard dataset"),
+        ("Josie v2", "Josie v2"),
+        ("Josie R1", "J.O.S.I.E.-R.1"),
+        ("ORBIT", "ORBIT Reasoning Layer"),
+        ("on the fly", "ON THE FLY"),
     ):
-        check(needle in plain, f"library contains {label}")
-    import uuid
-    sentinel = "ENGRAM-" + uuid.uuid4().hex
-    recalled = render(
+        check(needle in plain, f"catalog contains {label}")
+    check("engram" not in plain.lower(), "engram text is absent")
+    check("Sharp-Spark v4" not in plain, "older Sharp-Spark versions are not inlined")
+    josie = render(
         tmpl,
         [{"role": "user", "content": "hi"}],
-        add_generation_prompt=False,
-        engram=sentinel,
+        identity="josie",
+        reasoning_effort="off",
     )
-    check(sentinel in recalled, "engram kwarg is injected")
-    check(sentinel not in plain, "engram text is absent when not passed")
+    check(
+        josie.count("JOSIE IDENTITY (forced)") == plain.count("JOSIE IDENTITY (forced)") + 1,
+        "explicit identity=josie adds exactly one forced block",
+    )
     size = TEMPLATE.stat().st_size
-    check(size >= 2_000_000, f"template file is multiple MB ({size} bytes)")
+    check(size < 1_500_000, f"template file stays under the context budget ({size} bytes)")
+    try:
+        import tiktoken
+        enc = tiktoken.get_encoding("cl100k_base")
+        approx = len(enc.encode(plain, disallowed_special=()))
+    except Exception:
+        approx = len(plain) // 4
+    check(approx < 900_000, f"simple chat render fits under 1,048,576 tokens ({approx})")
 
     # 12. Unsupported role
     try:

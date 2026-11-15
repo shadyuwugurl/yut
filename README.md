@@ -1,55 +1,54 @@
 # xhtoken spark 2.6 4b — chat template
 
-Root `chat_template.jinja` is the chat template for **xhtoken spark 2.6 4b** (XHToken/Spark-X2.6-4B, architecture `spark2_5`, about 4.11B). The live wire is Sharp-Spark: Spark sentence tokens, taxonomy v0.3, and explicit override kwargs. There is no keyword routing. On every turn, including mid-conversation, the model is told to pick system, mode, construct, persona, identity, and theme from the situation and to switch when the situation changes.
+Root `chat_template.jinja` is the chat template for **xhtoken spark 2.6 4b** (XHToken/Spark-X2.6-4B, architecture `spark2_5`, about 4.11B, native context 1,048,576).
 
-The same system turn then inlines every other file in the repo (templates, docs, notes, JSON, model sources, scripts). ChatML, Gemma, Llama, Mistral, GLM, DeepSeek, Ring, and Qwen vision tokens in that library are rewritten onto the Spark roles. The file is about 4.1 MB. Rebuild it with `python3 scripts/build_omni_template.py`.
+The live wire is Sharp-Spark v5.1.0, which is the newest Sharp-Spark file (v5.0.1) with one added identity, `josie`. Older Sharp-Spark versions stay in `templates/archive/spark/` and are not copied into the template. There is no keyword routing and no engram hook. On every turn the model is told to pick system, mode, construct, persona, identity, and theme from the situation and to switch when the situation changes. Explicit override kwargs still force a frame.
 
-A one-message `"hi"` render is about **1.10 million** `cl100k_base` tokens (about 1.00 million by a chars/4 estimate). `scripts/verify_template.py` prints the exact estimate for the current file. The Spark tokenizer is not in the repo, so this is not a Spark token-id count. The stock tokenizer `model_max_length` is 131072. The patched `max_position_embeddings` is 1,048,576. The rendered prompt is larger than both, so a basic chat does not fit either window. That is the cost of leaving the whole library always on.
+The system turn then carries a sourced catalog:
 
-Native thinking levels are `none`, `low`, and `high`. Pass `engram` to inject recalled text. The template does not store memory itself. ORBIT is always on, ahead of the library.
+- The owner's taxonomy: 25 modes, 30 constructs, 20 personas, 33 identities, 8 themes, plus the ORBIT reasoning layer from `docs/ORBIT_LAYER.txt`.
+- DavidAU Turbo Brilliance System V2.0 and its AGI modes, from the GGUF `tokenizer.chat_template` of [Qwen3.8-40B-Ultimate-Heretic-Uncensored-Turbo-Brilliance-50x-AGI-NEO-GGUF](https://huggingface.co/DavidAU/Qwen3.8-40B-Ultimate-Heretic-Uncensored-Turbo-Brilliance-50x-AGI-NEO-GGUF). The 27B AGI repo matches it aside from the URL.
+- The Turbo Brilliance System V1.0 help menu, from the GGUF template of [Qwen3.8-27B-Turbo-Brilliance-50X-Reasoning-Instruct-NEO-MAX-MTP-GGUF](https://huggingface.co/DavidAU/Qwen3.8-27B-Turbo-Brilliance-50X-Reasoning-Instruct-NEO-MAX-MTP-GGUF). Matching persona bodies are not repeated.
+- Power X12 help and effort blocks, from [LFM2.5-2.6B-Qwen3.8-Turbo-Brilliance-Power-X12-NEO-MAX-GGUF](https://huggingface.co/DavidAU/LFM2.5-2.6B-Qwen3.8-Turbo-Brilliance-Power-X12-NEO-MAX-GGUF).
+- The Jumbo 747 patch line. The rest of [the Jumbo GGUF template](https://huggingface.co/DavidAU/Qwen3.8-27B-Jumbo-Fusion-IQ-747-900-Turbo-Brilliance-50X-Reasoning-Instruct-NEO-MAX-MTP-GGUF) matches V1.0.
+- The looping-model premise from the [31B looping card](https://huggingface.co/DavidAU/Qwen3.8-31B-Looping-Transformer-Ablit-Heretic-ARA-Uncensored). Its chat template is V2.0 and is not repeated.
+- Deckard, as the dataset definitions on the model cards. Those repos' chat templates are the base model templates and do not contain a Deckard persona prompt.
+- Distinct Josie system prompts from [Goekdeniz-Guelmez](https://huggingface.co/Goekdeniz-Guelmez): Josie v2, J.O.S.I.E.-R.1, the short base prompt, v6, v4o, and the OpenWebUI prompt as published (it contains ellipses in the source).
 
-These names were not separate sources in the repo, and they were not invented:
+`{REASON:...}` tags in that catalog are names, not triggers. ChatML and Llama role tokens in the sourced text are rewritten onto Spark roles.
 
-- Turbo Brilliance v1 has no file of its own. The v2 template contains the "Turbo-Brilliance System V1.0" writeup, and that file is in the library.
-- Jumbo Brilliance has no template or prompt. The session dump names a Hugging Face Jumbo-Fusion model, and that dump is in the library.
-- System 4, System 5, and System 6 do not exist as cognitive styles. The frame card has S1, S2, and S3. S4/S5 lines inside the Vader persona are skill bullets, and they ride along inside the DavidAU text.
-
-Control tokens:
-
-```text
-<｜start▁of▁sentence｜> <|System|> ... <｜end▁of▁sentence｜>
-<｜start▁of▁sentence｜> <|User|> ... <｜end▁of▁sentence｜>
-<｜start▁of▁sentence｜> <|Bot|> <think> ... </think> ... <｜end▁of▁sentence｜>
-<｜start▁of▁sentence｜> <|Tool|> <tool_response> ... </tool_response> <｜end▁of▁sentence｜>
-```
-
-The Spark text path still rejects image and video blocks. Tool calls use `<tool_call>`, `<arg_key>`, and `<arg_value>`.
+A one-message `"hi"` render is about **60,652** `cl100k_base` tokens. The Spark tokenizer is not in the repo, so this is not a Spark token-id count. That is comfortably under the 1,048,576 window. `scripts/verify_template.py` prints the exact estimate.
 
 ```bash
+python3 scripts/build_omni_template.py
 python3 scripts/verify_template.py
 python3 scripts/extract_taxonomy.py
 ```
 
+The raw DavidAU templates used to build the catalog are in `sources/hf/`.
+
 ## Layout
 
 ```text
-chat_template.jinja          always-on Spark template plus the full library
+chat_template.jinja
 README.md
-model/spark/                 Spark2_5 config, modeling code, weight index, tokenizer
-model/qwen3_5/               Qwen3.5 / Qwen3.6-VL config and tokenizer dump
-templates/archive/spark/     Sharp-Spark v4–v5 and the official stock template
-templates/archive/qwen/      ChatML, froggeric, Protium-Qwen, Ornith, arrow, DavidAU, Turbo Brilliance v2
-templates/archive/gemma/
-templates/archive/llama/
-templates/archive/mistral/
-templates/archive/glm/
-templates/archive/deepseek/
-templates/archive/misc/      Ring, LFM2.5, ZAYA example, ORBIT injection snippet
-docs/                        master plan, handoff, drift notes, specs snapshot, taxonomy
-docs/notes/                  session dump, Josie / next-step notes, clipboard pastes
-scripts/                     build_omni_template.py, verify_template.py, extract_taxonomy.py, make_synth.py, probe_frames.py
+sources/hf/                  DavidAU templates the catalog is extracted from
+model/spark/                 Spark2_5 config, modeling, tokenizer, weight index
+model/qwen3_5/               separate Qwen3.5 / Qwen3.6-VL dump
+templates/archive/spark/     Sharp-Spark v4.0.0, v4.1.0, v5.0.0, v5.0.1, official stock
+templates/archive/qwen/      other ChatML templates, including the local Turbo Brilliance v2 copy
+templates/archive/{gemma,llama,mistral,glm,deepseek,misc}/
+docs/  docs/notes/
+scripts/
 ```
 
-`model/spark/tokenizer_config.json` does not embed a `chat_template`. The root file is the one to pass to `apply_chat_template`. The Qwen tokenizer files were left as the other model's tokenizer. Their ChatML strings inside the library copy are rewritten; the files under `model/qwen3_5/` are unchanged.
+`model/spark/tokenizer_config.json` does not embed a chat template. Pass the root file to `apply_chat_template`.
 
-The previous root DavidAU template is still at `templates/archive/qwen/previous-root-davidau-qwen3.8.jinja`, and its text is also inside the root library.
+## Not found
+
+- A separate Turbo Brilliance v1 template file on Hugging Face. V1.0 is the system name inside the 27B NEO-MAX GGUF template. The two Flash Turbo Brilliance GGUFs did not yield a `tokenizer.chat_template` in the first 20 MB of metadata.
+- A Jumbo Brilliance persona that is not the V1.0 template plus the 747 patch line.
+- A Deckard system prompt inside `chat_template.jinja`. Deckard on the cards is a fine-tune dataset.
+- A looping chat template distinct from Turbo Brilliance V2.0. The looping behavior is described in the model-card dev notes.
+- System 4, 5, and 6 as cognitive styles.
+- A Josie prompt on `JOSIExMistral-7B-v0.32`.
