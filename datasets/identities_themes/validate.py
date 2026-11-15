@@ -83,12 +83,48 @@ def self_test() -> None:
     print("self-test ok")
 
 
+def near_duplicates(rows: list[dict], threshold: float = 0.55) -> list[tuple[int, int, float]]:
+    """Flag pairs whose assistant word-shingles overlap too much."""
+    def shingles(row: dict) -> set[str]:
+        text = " ".join(
+            m["content"].split("</think>")[-1].lower()
+            for m in row["messages"]
+            if m["role"] == "assistant"
+        )
+        words = [w for w in text.split() if w]
+        return {" ".join(words[i:i + 5]) for i in range(max(0, len(words) - 4))}
+
+    bags = [(i, shingles(r), r["meta"]["key"]) for i, r in enumerate(rows)]
+    hits = []
+    by: dict[str, list[tuple[int, set[str]]]] = {}
+    for i, bag, key in bags:
+        by.setdefault(key, []).append((i, bag))
+    for group in by.values():
+        for a in range(len(group)):
+            ia, ba = group[a]
+            if not ba:
+                continue
+            for b in range(a + 1, len(group)):
+                ib, bb = group[b]
+                if not bb:
+                    continue
+                inter = len(ba & bb)
+                if not inter:
+                    continue
+                score = inter / len(ba | bb)
+                if score >= threshold:
+                    hits.append((ia, ib, round(score, 3)))
+    return hits
+
+
 def main() -> None:
     p = argparse.ArgumentParser(description="Validate identity/theme jsonl")
     p.add_argument("paths", nargs="*", type=Path)
     p.add_argument("--min-per-id", type=int, default=None)
     p.add_argument("--max-per-id", type=int, default=None)
     p.add_argument("--self-test", action="store_true")
+    p.add_argument("--near", type=float, default=None, help="flag assistant shingle Jaccard at or above this")
+    p.add_argument("--require-all", action="store_true", help="fail if any training id is absent")
     args = p.parse_args()
     if args.self_test:
         self_test()
@@ -127,18 +163,22 @@ def main() -> None:
             bad_range.append(f"{key}={n}<{args.min_per_id}")
         if args.max_per_id is not None and n > args.max_per_id:
             bad_range.append(f"{key}={n}>{args.max_per_id}")
+    near_hits = near_duplicates(rows, args.near) if args.near is not None else []
     print(json.dumps({
         "rows": len(rows),
         "ok": len(rows) - sum(errors.values()),
         "errors": dict(errors),
         "ids": len(per),
-        "missing": missing,
+        "missing": missing if args.require_all else [],
+        "absent": [] if args.require_all else missing,
         "range": bad_range,
         "alias_labels": alias_as_id,
+        "near_duplicates": len(near_hits),
+        "near_sample": [{"a": a, "b": b, "score": s} for a, b, s in near_hits[:8]],
         "josie_input_alias": dict(sorted(josie_aliases.items())),
         "per_id": dict(sorted(per.items())),
     }, indent=2))
-    if errors or missing or bad_range or alias_as_id:
+    if errors or bad_range or alias_as_id or near_hits or (args.require_all and missing):
         raise SystemExit(1)
 
 

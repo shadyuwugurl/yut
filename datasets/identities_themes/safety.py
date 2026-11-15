@@ -321,7 +321,7 @@ def check_meta(meta: dict, canon: Canon) -> str | None:
             return "shape-dial"
     if not isinstance(meta.get("think"), bool):
         return "think-flag"
-    if meta.get("source") not in {"seed", "procedural", "teacher"}:
+    if meta.get("source") not in {"seed", "procedural", "teacher", "authored"}:
         return "source"
     return None
 
@@ -360,6 +360,6 @@ def check_record(record: dict, canon: Canon) -> str | None:
         return "shape"
     if meta["shape"] in {"multi", "shift"} and len(messages) < 4:
         return "shape"
-    if meta["shape"] == "combo" and len(messages) != 2:
+    if meta["shape"] == "combo" and (len(messages) < 2 or len(messages) % 2):
         return "shape"
     return None
