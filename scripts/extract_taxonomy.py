@@ -6,7 +6,8 @@ Point build_queue.py and the decision-head training labels at this JSON so the
 queue and the router can never drift from the template again.
 
 Usage:
-    python3 extract_taxonomy.py Sharp-Spark_v5.0.1.jinja taxonomy.json
+    python3 scripts/extract_taxonomy.py
+    python3 scripts/extract_taxonomy.py chat_template.jinja docs/taxonomy.json
 """
 import ast, json, re, sys
 from pathlib import Path
@@ -38,5 +39,8 @@ def main(tpl_path, out_path):
     sys.exit(0 if ok else 1)
 
 if __name__ == "__main__":
-    main(sys.argv[1] if len(sys.argv) > 1 else "Sharp-Spark_v5.0.1.jinja",
-         sys.argv[2] if len(sys.argv) > 2 else "taxonomy.json")
+    repo = Path(__file__).resolve().parent.parent
+    main(
+        sys.argv[1] if len(sys.argv) > 1 else str(repo / "chat_template.jinja"),
+        sys.argv[2] if len(sys.argv) > 2 else str(repo / "docs" / "taxonomy.json"),
+    )

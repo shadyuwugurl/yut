@@ -1,6 +1,6 @@
 {
   "taxonomy": "v0.3",
-  "source": "Sharp-Spark_v5.0.1.jinja",
+  "source": "chat_template.jinja",
   "modes": {
     "count": 25,
     "values": [

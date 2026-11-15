@@ -23,8 +23,9 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
-HERE = Path(__file__).resolve().parent
-DEFAULT_TEMPLATE = HERE / "chat_template.jinja"
+REPO = Path(__file__).resolve().parent.parent
+HERE = REPO
+DEFAULT_TEMPLATE = REPO / "chat_template.jinja"
 DEFAULT_MODEL = Path(
     "/Users/charlie/.cache/huggingface/hub/"
     "models--yuna1126--Spark-X2.6-4B-Tema_Q-Abliterated/"

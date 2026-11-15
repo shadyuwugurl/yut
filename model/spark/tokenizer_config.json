@@ -1,0 +1,15 @@
+{
+  "backend": "tokenizers",
+  "bos_token": "<｜start▁of▁sentence｜>",
+  "clean_up_tokenization_spaces": false,
+  "eos_token": "<｜end▁of▁sentence｜>",
+  "is_local": true,
+  "legacy": true,
+  "local_files_only": false,
+  "model_max_length": 131072,
+  "pad_token": "<｜▁pad▁｜>",
+  "sp_model_kwargs": {},
+  "tokenizer_class": "TokenizersBackend",
+  "tool_parser_type": "glm47",
+  "unk_token": "<unk>"
+}
