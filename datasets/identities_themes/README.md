@@ -43,6 +43,19 @@ Aliases are inputs, never labels. Every Josie wording (`josie_v2`, `josie_r1`, `
 - `erotica` is explicit only for a clearly adult, clearly consensual scene.
 - Josie's catalog line about refusing nothing is not trained as blanket compliance. These rows do not include crimes, weapons, or anyone under 21. "Direct" means no disclaimer theatre on adult consensual topics.
 
+## Authored rows
+
+`authored/<id>.jsonl` is hand-written. `source` is `authored`. These are not the procedural sampler. Every id has a file. Counts are in the tens, not the hundreds: breadth across all 42 ids came first, and further rows were starting to repeat situation families (doors, curbs, tea), so the set stops there instead of padding.
+
+`final/` is the default mix: every authored row plus `seed.jsonl`. The procedural 100-per-id draw stays in `sample/` and is not in `final/`.
+
+```bash
+python3 datasets/identities_themes/build_final.py
+python3 datasets/identities_themes/validate.py --near 0.5 --require-all \
+  datasets/identities_themes/final/train.jsonl.gz \
+  datasets/identities_themes/final/val.jsonl.gz
+```
+
 ## What is committed
 
 | file | what |
