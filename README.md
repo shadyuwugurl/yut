@@ -13,11 +13,15 @@ The system turn then carries a sourced catalog:
 - The Jumbo 747 patch line. The rest of [the Jumbo GGUF template](https://huggingface.co/DavidAU/Qwen3.8-27B-Jumbo-Fusion-IQ-747-900-Turbo-Brilliance-50X-Reasoning-Instruct-NEO-MAX-MTP-GGUF) matches V1.0.
 - The looping-model premise from the [31B looping card](https://huggingface.co/DavidAU/Qwen3.8-31B-Looping-Transformer-Ablit-Heretic-ARA-Uncensored). Its chat template is V2.0 and is not repeated.
 - Deckard, as the dataset definitions on the model cards. Those repos' chat templates are the base model templates and do not contain a Deckard persona prompt.
-- Distinct Josie system prompts from [Goekdeniz-Guelmez](https://huggingface.co/Goekdeniz-Guelmez): Josie v2, J.O.S.I.E.-R.1, the short base prompt, v6, v4o, and the OpenWebUI prompt as published (it contains ellipses in the source).
+- Distinct Josie system prompts from [Goekdeniz-Guelmez](https://huggingface.co/Goekdeniz-Guelmez): Josie v2, J.O.S.I.E.-R.1, the short base prompt, v6, v4o, and the OpenWebUI prompt as published (it contains ellipses in the source). Charlie's attached Josie file adds only the paragraphs that were not already there.
+- Twin-Turbo's brainstormer card and Deep Research protocol, from the ULTRA-HERETIC `chat_template-tturbo-v2.jinja`. The 709-L GGUF and the ULTRA GGUF repeat those blocks.
+- Extra help menus that are not the same text as V1 or V2: Flash abliterated (also Charlie's attached Turbo v2 template), the 8B X12 GGUF, the LFM2.5-24B GGUF, and Ultimate Build2.
+- Protium 1.0's objective-gated contract and Hermes-through-Proteus spectrum, from Charlie's attached template. `protium_level` forces one level. Inline `[L0]` / `{REASON:}` sniffing is not executed.
+- The V5 Mastercraft palettes and craft specification. `aesthetic_preset` forces one palette. The live tool path clips with `max_tool_arg_chars` / `max_tool_response_chars`, reads `.arguments` or `.parameters` or `.input`, keeps reasoning from `reasoning_content` / `thinking` / `reasoning` (including a `{text: ...}` field), and appends the 3-tier tool-error warnings. It does not reject images.
 
 `{REASON:...}` tags in that catalog are names, not triggers. ChatML and Llama role tokens in the sourced text are rewritten onto Spark roles.
 
-A one-message `"hi"` render is about **60,652** `cl100k_base` tokens. The Spark tokenizer is not in the repo, so this is not a Spark token-id count. That is comfortably under the 1,048,576 window. `scripts/verify_template.py` prints the exact estimate.
+A one-message `"hi"` render is about **76,512** `cl100k_base` tokens. The file is about **365 KB**. The Spark tokenizer is not in the repo, so this is not a Spark token-id count. That is comfortably under the 1,048,576 window. `scripts/verify_template.py` prints the exact estimate.
 
 ```bash
 python3 scripts/build_omni_template.py

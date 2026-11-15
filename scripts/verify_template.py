@@ -284,6 +284,65 @@ def main():
         josie.count("JOSIE IDENTITY (forced)") == plain.count("JOSIE IDENTITY (forced)") + 1,
         "explicit identity=josie adds exactly one forced block",
     )
+    # 12. Mastercraft tool behavior and explicit style/protium overrides
+    params_out = render(
+        tmpl,
+        [
+            {"role": "user", "content": "weather?"},
+            {
+                "role": "assistant",
+                "content": "",
+                "tool_calls": [{"function": {"name": "get_weather", "parameters": {"city": "Sydney"}}}],
+            },
+        ],
+        add_generation_prompt=False,
+        reasoning_effort="off",
+    )
+    check(
+        "<arg_key>city</arg_key><arg_value>Sydney</arg_value>" in params_out,
+        "tool arguments read from function.parameters",
+    )
+    err_msgs = [
+        {"role": "user", "content": "go"},
+        {"role": "assistant", "content": "", "tool_calls": [{"function": {"name": "run", "arguments": {"cmd": "x"}}}]},
+        {"role": "tool", "content": "failed to open socket"},
+    ]
+    err_out = render(tmpl, err_msgs, add_generation_prompt=False, reasoning_effort="off")
+    check(
+        "The previous tool call returned an error" in err_out,
+        "first tool error appends the tier-1 warning",
+    )
+    triple = [{"role": "user", "content": "go"}]
+    for _ in range(3):
+        triple.append({"role": "assistant", "content": "", "tool_calls": [{"function": {"name": "run", "arguments": {"cmd": "x"}}}]})
+        triple.append({"role": "tool", "content": "failed to open"})
+    triple_out = render(tmpl, triple, add_generation_prompt=False, reasoning_effort="off")
+    check("CRITICAL AGENTIC LOOP" in triple_out, "third consecutive tool error appends the loop warning")
+    check("SYSTEM WARNING" not in live(plain), "a plain chat does not invent a tool warning")
+    styled = render(
+        tmpl,
+        [{"role": "user", "content": "hi"}],
+        aesthetic_preset="luxury",
+        reasoning_effort="off",
+    )
+    check(
+        styled.count("AESTHETIC PRESET (forced): luxury") == plain.count("AESTHETIC PRESET (forced): luxury") + 1,
+        "aesthetic_preset forces the named palette",
+    )
+    check("Haute Luxury" in plain, "aesthetic palettes are in the catalog")
+    leveled = render(
+        tmpl,
+        [{"role": "user", "content": "hi"}],
+        protium_level="artemis",
+        reasoning_effort="off",
+    )
+    check(
+        "PROTIUM LEVEL (forced): artemis" in leveled,
+        "protium_level forces the named mindset",
+    )
+    check("PROTIUM OBJECTIVE-GATED" in plain, "Protium contract is in the catalog")
+    check("Qwen Deep Research" in plain, "Twin-Turbo deep research protocol is in the catalog")
+
     size = TEMPLATE.stat().st_size
     check(size < 1_500_000, f"template file stays under the context budget ({size} bytes)")
     try:
