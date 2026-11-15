@@ -229,9 +229,66 @@ def frame_tag(frame: dict) -> str:
     ).format(**frame)
 
 
-def band_for(spec: Spec, turn_frame: dict, is_final: bool) -> tuple[int, int]:
+# Bands for hand-authored rows. Floors are high enough that a hard effort
+# cannot be a one-liner, and caps are low enough that a real solution does
+# not have to restate itself to qualify.
+AUTHORED = {
+    ("thinking_effort", "off"): (0, 0),
+    ("thinking_effort", "low"): (120, 420),
+    ("thinking_effort", "high"): (360, 1700),
+    ("channel", "instruct"): (0, 0),
+    ("reasoning_effort", "effort_low"): (110, 220),
+    ("reasoning_effort", "effort_medium_low"): (180, 450),
+    ("reasoning_effort", "effort_medium"): (360, 1100),
+    ("reasoning_effort", "effort_high"): (520, 1600),
+    ("reasoning_effort", "effort_ultra"): (700, 2100),
+    ("reasoning_effort", "effort_xultra"): (1200, 2400),
+    ("mode", "extreme"): (640, 2200),
+    ("mode", "stream"): (100, 230),
+    ("protium", "hermes"): (110, 240),
+    ("protium", "apollo"): (180, 450),
+    ("protium", "artemis"): (300, 1400),
+    ("protium", "athena"): (300, 1500),
+    ("protium", "prometheus"): (300, 1600),
+    ("protium", "solstice"): (300, 1600),
+    ("protium", "hyperion"): (300, 1600),
+    ("protium", "einstein"): (400, 2000),
+    ("protium", "oracle"): (450, 2400),
+    ("protium", "proteus"): (180, 1500),
+    ("protium", "swarm"): (300, 1600),
+    ("protium", "council"): (300, 1600),
+    ("reasoning_mode", "loop"): (650, 2200),
+    ("stance", "deckard"): (100, 380),
+    ("patch", "jumbo"): (320, 1500),
+    ("orbit", "contextual_sanity"): (120, 420),
+    ("orbit", "provisional_judgment"): (120, 420),
+    ("orbit", "childlike_capacity"): (120, 420),
+    ("orbit", "instrument_bounded"): (120, 420),
+}
+for _palette in (
+    "luxury",
+    "cyberpunk",
+    "editorial",
+    "neobrutalism",
+    "bento",
+    "svg_isometric",
+    "exquisite",
+):
+    AUTHORED[("aesthetic", _palette)] = (320, 1500)
+
+AUTHORED_LOW = (110, 460)
+AUTHORED_HIGH = (200, 1800)
+
+
+def band_for(spec: Spec, turn_frame: dict, is_final: bool, source: str | None = None) -> tuple[int, int]:
     if turn_frame.get("channel") == "instruct" or turn_frame.get("thinking_effort") == "off":
         return (0, 0)
+    if source == "authored":
+        if is_final and (spec.category, spec.id) in AUTHORED:
+            return AUTHORED[(spec.category, spec.id)]
+        if turn_frame.get("thinking_effort") == "low":
+            return AUTHORED_LOW
+        return AUTHORED_HIGH
     if is_final and (spec.category, spec.id) in EXPLICIT:
         return EXPLICIT[(spec.category, spec.id)]
     if turn_frame.get("thinking_effort") == "low":

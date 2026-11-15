@@ -46,6 +46,20 @@ def _is_error(content: str) -> bool:
     return any(n in head for n in needles)
 
 
+def _repeated_sentence(think: str) -> str | None:
+    """Flag a sentence reused verbatim. Real derivations don't do that."""
+    seen = []
+    for raw in re.split(r"(?<=[.!?])\s+|\n+", think):
+        line = " ".join(raw.split()).strip(" -")
+        if len(line) < 45 or line.startswith("[frame:"):
+            continue
+        key = line.lower()
+        if key in seen:
+            return line
+        seen.append(key)
+    return None
+
+
 def _calls(message: dict) -> list[dict]:
     return list(message.get("tool_calls") or [])
 
@@ -177,7 +191,11 @@ def problems(ex: dict, spec: Spec) -> list[str]:
     for i, (msg, turn) in enumerate(zip(assistants, turns)):
         is_final = i == len(assistants) - 1
         think, visible = split_think(msg.get("content") or "")
-        lo, hi = band_for(spec, turn, is_final)
+        lo, hi = band_for(spec, turn, is_final, meta.get("source"))
+        if meta.get("source") == "authored" and think:
+            repeated = _repeated_sentence(think)
+            if repeated:
+                out.append(f"turn {i} restates a sentence: {repeated[:80]}")
         if lo == 0:
             if think or "<think>" in (msg.get("content") or ""):
                 out.append(f"turn {i} should not think")

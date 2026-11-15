@@ -31,8 +31,10 @@ else. `channel/instruct` and `thinking_effort/off` have no think tag.
 ids.json          canonical slice (do not rename an id)
 generate.py       procedural bank, or an OpenAI-compatible teacher
 validate.py       filters plus a Jinja render through chat_template.jinja
-seed.jsonl        20 authored rows per id
-sample/           100 procedural rows per id, gzip, train/val
+seed.jsonl        20 procedural seed rows per id (kept, mixed into final/)
+sample/           100 procedural rows per id, gzip, NOT in the default mix
+authored/         hand-written rows, category__id.jsonl
+final/            train/val of authored + seed only
 ```
 
 Think length is checked against the effort. `thinking_effort/low` is a short
