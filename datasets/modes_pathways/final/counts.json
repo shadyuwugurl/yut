@@ -1,0 +1,556 @@
+{
+  "mix": "authored + seed",
+  "excluded": "datasets/modes_pathways/sample (procedural)",
+  "authored": 324,
+  "total": 2144,
+  "train": 2044,
+  "val": 100,
+  "by_id": {
+    "aesthetic/bento": {
+      "train": 20,
+      "val": 1,
+      "authored": 1,
+      "seed": 20
+    },
+    "aesthetic/cyberpunk": {
+      "train": 20,
+      "val": 1,
+      "authored": 1,
+      "seed": 20
+    },
+    "aesthetic/editorial": {
+      "train": 20,
+      "val": 1,
+      "authored": 1,
+      "seed": 20
+    },
+    "aesthetic/exquisite": {
+      "train": 20,
+      "val": 1,
+      "authored": 1,
+      "seed": 20
+    },
+    "aesthetic/luxury": {
+      "train": 21,
+      "val": 1,
+      "authored": 2,
+      "seed": 20
+    },
+    "aesthetic/neobrutalism": {
+      "train": 20,
+      "val": 1,
+      "authored": 1,
+      "seed": 20
+    },
+    "aesthetic/svg_isometric": {
+      "train": 20,
+      "val": 1,
+      "authored": 1,
+      "seed": 20
+    },
+    "agi/agi-brainstorm-007": {
+      "train": 20,
+      "val": 1,
+      "authored": 1,
+      "seed": 20
+    },
+    "agi/agi-brainstorm-business": {
+      "train": 20,
+      "val": 1,
+      "authored": 1,
+      "seed": 20
+    },
+    "agi/agi-brainstorm-coder": {
+      "train": 20,
+      "val": 1,
+      "authored": 1,
+      "seed": 20
+    },
+    "agi/agi-brainstorm-comedy": {
+      "train": 20,
+      "val": 1,
+      "authored": 1,
+      "seed": 20
+    },
+    "agi/agi-brainstorm-house": {
+      "train": 20,
+      "val": 1,
+      "authored": 1,
+      "seed": 20
+    },
+    "agi/agi-brainstorm-matlock": {
+      "train": 20,
+      "val": 1,
+      "authored": 1,
+      "seed": 20
+    },
+    "agi/agi-brainstorm-prompt": {
+      "train": 20,
+      "val": 1,
+      "authored": 1,
+      "seed": 20
+    },
+    "agi/agi-brainstorm-stark": {
+      "train": 20,
+      "val": 1,
+      "authored": 1,
+      "seed": 20
+    },
+    "agi/agi-brainstorm-story": {
+      "train": 20,
+      "val": 1,
+      "authored": 1,
+      "seed": 20
+    },
+    "agi/agi-house-comedy": {
+      "train": 20,
+      "val": 1,
+      "authored": 1,
+      "seed": 20
+    },
+    "agi/agi-musk-brainstorm": {
+      "train": 20,
+      "val": 1,
+      "authored": 1,
+      "seed": 20
+    },
+    "agi/agi-musk-business": {
+      "train": 20,
+      "val": 1,
+      "authored": 1,
+      "seed": 20
+    },
+    "agi/agi-musk-curie": {
+      "train": 18,
+      "val": 3,
+      "authored": 1,
+      "seed": 20
+    },
+    "agi/agi-pkd-comedy": {
+      "train": 20,
+      "val": 1,
+      "authored": 1,
+      "seed": 20
+    },
+    "agi/agi-pkd-house": {
+      "train": 20,
+      "val": 1,
+      "authored": 1,
+      "seed": 20
+    },
+    "agi/agi-pkd-neo": {
+      "train": 20,
+      "val": 1,
+      "authored": 1,
+      "seed": 20
+    },
+    "agi/agi-pkd-vader-comedy": {
+      "train": 18,
+      "val": 3,
+      "authored": 1,
+      "seed": 20
+    },
+    "agi/agi-stark-comedy": {
+      "train": 20,
+      "val": 1,
+      "authored": 1,
+      "seed": 20
+    },
+    "agi/agi-stark-musk-coder": {
+      "train": 20,
+      "val": 1,
+      "authored": 1,
+      "seed": 20
+    },
+    "agi/agi-stark-musk-curie": {
+      "train": 20,
+      "val": 1,
+      "authored": 1,
+      "seed": 20
+    },
+    "agi/agi-teacher-007": {
+      "train": 20,
+      "val": 1,
+      "authored": 1,
+      "seed": 20
+    },
+    "agi/agi-teacher-business": {
+      "train": 21,
+      "val": 1,
+      "authored": 2,
+      "seed": 20
+    },
+    "agi/agi-teacher-coder": {
+      "train": 21,
+      "val": 1,
+      "authored": 2,
+      "seed": 20
+    },
+    "agi/agi-vader-comedy": {
+      "train": 21,
+      "val": 1,
+      "authored": 2,
+      "seed": 20
+    },
+    "channel/instruct": {
+      "train": 25,
+      "val": 1,
+      "authored": 6,
+      "seed": 20
+    },
+    "channel/reasoning": {
+      "train": 26,
+      "val": 1,
+      "authored": 7,
+      "seed": 20
+    },
+    "mode/auto": {
+      "train": 23,
+      "val": 1,
+      "authored": 4,
+      "seed": 20
+    },
+    "mode/banter": {
+      "train": 25,
+      "val": 1,
+      "authored": 6,
+      "seed": 20
+    },
+    "mode/brainstorm": {
+      "train": 25,
+      "val": 1,
+      "authored": 6,
+      "seed": 20
+    },
+    "mode/build": {
+      "train": 25,
+      "val": 1,
+      "authored": 6,
+      "seed": 20
+    },
+    "mode/chat": {
+      "train": 27,
+      "val": 1,
+      "authored": 8,
+      "seed": 20
+    },
+    "mode/code": {
+      "train": 25,
+      "val": 1,
+      "authored": 6,
+      "seed": 20
+    },
+    "mode/complete": {
+      "train": 24,
+      "val": 2,
+      "authored": 6,
+      "seed": 20
+    },
+    "mode/deep": {
+      "train": 25,
+      "val": 1,
+      "authored": 6,
+      "seed": 20
+    },
+    "mode/escalate": {
+      "train": 25,
+      "val": 1,
+      "authored": 6,
+      "seed": 20
+    },
+    "mode/extreme": {
+      "train": 22,
+      "val": 1,
+      "authored": 3,
+      "seed": 20
+    },
+    "mode/heal": {
+      "train": 25,
+      "val": 1,
+      "authored": 6,
+      "seed": 20
+    },
+    "mode/hotpot": {
+      "train": 25,
+      "val": 1,
+      "authored": 6,
+      "seed": 20
+    },
+    "mode/inhibit": {
+      "train": 25,
+      "val": 1,
+      "authored": 6,
+      "seed": 20
+    },
+    "mode/logic": {
+      "train": 25,
+      "val": 1,
+      "authored": 6,
+      "seed": 20
+    },
+    "mode/pattern": {
+      "train": 25,
+      "val": 1,
+      "authored": 6,
+      "seed": 20
+    },
+    "mode/plan": {
+      "train": 25,
+      "val": 1,
+      "authored": 6,
+      "seed": 20
+    },
+    "mode/react": {
+      "train": 25,
+      "val": 1,
+      "authored": 6,
+      "seed": 20
+    },
+    "mode/recall": {
+      "train": 25,
+      "val": 1,
+      "authored": 6,
+      "seed": 20
+    },
+    "mode/reroute": {
+      "train": 25,
+      "val": 1,
+      "authored": 6,
+      "seed": 20
+    },
+    "mode/research": {
+      "train": 25,
+      "val": 1,
+      "authored": 6,
+      "seed": 20
+    },
+    "mode/settle": {
+      "train": 25,
+      "val": 1,
+      "authored": 6,
+      "seed": 20
+    },
+    "mode/skim": {
+      "train": 25,
+      "val": 1,
+      "authored": 6,
+      "seed": 20
+    },
+    "mode/solve": {
+      "train": 25,
+      "val": 1,
+      "authored": 6,
+      "seed": 20
+    },
+    "mode/stream": {
+      "train": 25,
+      "val": 1,
+      "authored": 6,
+      "seed": 20
+    },
+    "mode/teach": {
+      "train": 25,
+      "val": 1,
+      "authored": 6,
+      "seed": 20
+    },
+    "mode/vibe": {
+      "train": 25,
+      "val": 1,
+      "authored": 6,
+      "seed": 20
+    },
+    "orbit/childlike_capacity": {
+      "train": 21,
+      "val": 1,
+      "authored": 2,
+      "seed": 20
+    },
+    "orbit/contextual_sanity": {
+      "train": 21,
+      "val": 1,
+      "authored": 2,
+      "seed": 20
+    },
+    "orbit/instrument_bounded": {
+      "train": 21,
+      "val": 1,
+      "authored": 2,
+      "seed": 20
+    },
+    "orbit/provisional_judgment": {
+      "train": 21,
+      "val": 1,
+      "authored": 2,
+      "seed": 20
+    },
+    "patch/jumbo": {
+      "train": 21,
+      "val": 1,
+      "authored": 2,
+      "seed": 20
+    },
+    "pathway/auto": {
+      "train": 25,
+      "val": 1,
+      "authored": 6,
+      "seed": 20
+    },
+    "pathway/s1": {
+      "train": 25,
+      "val": 1,
+      "authored": 6,
+      "seed": 20
+    },
+    "pathway/s2": {
+      "train": 23,
+      "val": 3,
+      "authored": 6,
+      "seed": 20
+    },
+    "pathway/s3": {
+      "train": 25,
+      "val": 1,
+      "authored": 6,
+      "seed": 20
+    },
+    "protium/apollo": {
+      "train": 23,
+      "val": 1,
+      "authored": 4,
+      "seed": 20
+    },
+    "protium/artemis": {
+      "train": 23,
+      "val": 1,
+      "authored": 4,
+      "seed": 20
+    },
+    "protium/athena": {
+      "train": 23,
+      "val": 1,
+      "authored": 4,
+      "seed": 20
+    },
+    "protium/council": {
+      "train": 23,
+      "val": 1,
+      "authored": 4,
+      "seed": 20
+    },
+    "protium/einstein": {
+      "train": 23,
+      "val": 1,
+      "authored": 4,
+      "seed": 20
+    },
+    "protium/hermes": {
+      "train": 21,
+      "val": 3,
+      "authored": 4,
+      "seed": 20
+    },
+    "protium/hyperion": {
+      "train": 23,
+      "val": 1,
+      "authored": 4,
+      "seed": 20
+    },
+    "protium/oracle": {
+      "train": 22,
+      "val": 1,
+      "authored": 3,
+      "seed": 20
+    },
+    "protium/prometheus": {
+      "train": 23,
+      "val": 1,
+      "authored": 4,
+      "seed": 20
+    },
+    "protium/proteus": {
+      "train": 23,
+      "val": 1,
+      "authored": 4,
+      "seed": 20
+    },
+    "protium/solstice": {
+      "train": 23,
+      "val": 1,
+      "authored": 4,
+      "seed": 20
+    },
+    "protium/swarm": {
+      "train": 23,
+      "val": 1,
+      "authored": 4,
+      "seed": 20
+    },
+    "reasoning_effort/effort_high": {
+      "train": 23,
+      "val": 1,
+      "authored": 4,
+      "seed": 20
+    },
+    "reasoning_effort/effort_low": {
+      "train": 23,
+      "val": 1,
+      "authored": 4,
+      "seed": 20
+    },
+    "reasoning_effort/effort_medium": {
+      "train": 23,
+      "val": 1,
+      "authored": 4,
+      "seed": 20
+    },
+    "reasoning_effort/effort_medium_low": {
+      "train": 23,
+      "val": 1,
+      "authored": 4,
+      "seed": 20
+    },
+    "reasoning_effort/effort_ultra": {
+      "train": 21,
+      "val": 1,
+      "authored": 2,
+      "seed": 20
+    },
+    "reasoning_effort/effort_xultra": {
+      "train": 20,
+      "val": 1,
+      "authored": 1,
+      "seed": 20
+    },
+    "reasoning_mode/loop": {
+      "train": 21,
+      "val": 1,
+      "authored": 2,
+      "seed": 20
+    },
+    "stance/deckard": {
+      "train": 22,
+      "val": 1,
+      "authored": 3,
+      "seed": 20
+    },
+    "thinking_effort/high": {
+      "train": 25,
+      "val": 1,
+      "authored": 6,
+      "seed": 20
+    },
+    "thinking_effort/low": {
+      "train": 25,
+      "val": 1,
+      "authored": 6,
+      "seed": 20
+    },
+    "thinking_effort/off": {
+      "train": 25,
+      "val": 1,
+      "authored": 6,
+      "seed": 20
+    }
+  }
+}
