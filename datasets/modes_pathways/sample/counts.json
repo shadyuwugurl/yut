@@ -1,0 +1,468 @@
+{
+  "backend": "procedural",
+  "per_id": 100,
+  "seed": 20261115,
+  "val_ratio": 0.02,
+  "source": "procedural",
+  "total": 9100,
+  "train": 8907,
+  "val": 193,
+  "by_id": {
+    "pathway/auto": {
+      "train": 99,
+      "val": 1,
+      "tool_rows": 0
+    },
+    "pathway/s1": {
+      "train": 98,
+      "val": 2,
+      "tool_rows": 0
+    },
+    "pathway/s2": {
+      "train": 99,
+      "val": 1,
+      "tool_rows": 17
+    },
+    "pathway/s3": {
+      "train": 99,
+      "val": 1,
+      "tool_rows": 0
+    },
+    "mode/auto": {
+      "train": 99,
+      "val": 1,
+      "tool_rows": 0
+    },
+    "mode/banter": {
+      "train": 99,
+      "val": 1,
+      "tool_rows": 0
+    },
+    "mode/brainstorm": {
+      "train": 99,
+      "val": 1,
+      "tool_rows": 0
+    },
+    "mode/build": {
+      "train": 99,
+      "val": 1,
+      "tool_rows": 20
+    },
+    "mode/chat": {
+      "train": 99,
+      "val": 1,
+      "tool_rows": 0
+    },
+    "mode/code": {
+      "train": 94,
+      "val": 6,
+      "tool_rows": 23
+    },
+    "mode/complete": {
+      "train": 99,
+      "val": 1,
+      "tool_rows": 0
+    },
+    "mode/deep": {
+      "train": 99,
+      "val": 1,
+      "tool_rows": 0
+    },
+    "mode/escalate": {
+      "train": 98,
+      "val": 2,
+      "tool_rows": 0
+    },
+    "mode/extreme": {
+      "train": 99,
+      "val": 1,
+      "tool_rows": 0
+    },
+    "mode/heal": {
+      "train": 99,
+      "val": 1,
+      "tool_rows": 0
+    },
+    "mode/hotpot": {
+      "train": 99,
+      "val": 1,
+      "tool_rows": 0
+    },
+    "mode/inhibit": {
+      "train": 94,
+      "val": 6,
+      "tool_rows": 0
+    },
+    "mode/logic": {
+      "train": 97,
+      "val": 3,
+      "tool_rows": 0
+    },
+    "mode/pattern": {
+      "train": 99,
+      "val": 1,
+      "tool_rows": 0
+    },
+    "mode/plan": {
+      "train": 97,
+      "val": 3,
+      "tool_rows": 0
+    },
+    "mode/react": {
+      "train": 99,
+      "val": 1,
+      "tool_rows": 0
+    },
+    "mode/recall": {
+      "train": 98,
+      "val": 2,
+      "tool_rows": 0
+    },
+    "mode/reroute": {
+      "train": 98,
+      "val": 2,
+      "tool_rows": 0
+    },
+    "mode/research": {
+      "train": 97,
+      "val": 3,
+      "tool_rows": 0
+    },
+    "mode/settle": {
+      "train": 98,
+      "val": 2,
+      "tool_rows": 0
+    },
+    "mode/skim": {
+      "train": 95,
+      "val": 5,
+      "tool_rows": 0
+    },
+    "mode/solve": {
+      "train": 96,
+      "val": 4,
+      "tool_rows": 0
+    },
+    "mode/stream": {
+      "train": 96,
+      "val": 4,
+      "tool_rows": 0
+    },
+    "mode/teach": {
+      "train": 98,
+      "val": 2,
+      "tool_rows": 0
+    },
+    "mode/vibe": {
+      "train": 99,
+      "val": 1,
+      "tool_rows": 0
+    },
+    "thinking_effort/high": {
+      "train": 98,
+      "val": 2,
+      "tool_rows": 0
+    },
+    "thinking_effort/low": {
+      "train": 98,
+      "val": 2,
+      "tool_rows": 0
+    },
+    "thinking_effort/off": {
+      "train": 96,
+      "val": 4,
+      "tool_rows": 0
+    },
+    "reasoning_effort/effort_high": {
+      "train": 99,
+      "val": 1,
+      "tool_rows": 0
+    },
+    "reasoning_effort/effort_low": {
+      "train": 97,
+      "val": 3,
+      "tool_rows": 0
+    },
+    "reasoning_effort/effort_medium": {
+      "train": 97,
+      "val": 3,
+      "tool_rows": 0
+    },
+    "reasoning_effort/effort_medium_low": {
+      "train": 99,
+      "val": 1,
+      "tool_rows": 0
+    },
+    "reasoning_effort/effort_ultra": {
+      "train": 97,
+      "val": 3,
+      "tool_rows": 0
+    },
+    "reasoning_effort/effort_xultra": {
+      "train": 99,
+      "val": 1,
+      "tool_rows": 0
+    },
+    "channel/instruct": {
+      "train": 98,
+      "val": 2,
+      "tool_rows": 0
+    },
+    "channel/reasoning": {
+      "train": 99,
+      "val": 1,
+      "tool_rows": 19
+    },
+    "protium/apollo": {
+      "train": 97,
+      "val": 3,
+      "tool_rows": 0
+    },
+    "protium/artemis": {
+      "train": 99,
+      "val": 1,
+      "tool_rows": 0
+    },
+    "protium/athena": {
+      "train": 99,
+      "val": 1,
+      "tool_rows": 0
+    },
+    "protium/council": {
+      "train": 97,
+      "val": 3,
+      "tool_rows": 0
+    },
+    "protium/einstein": {
+      "train": 99,
+      "val": 1,
+      "tool_rows": 0
+    },
+    "protium/hermes": {
+      "train": 98,
+      "val": 2,
+      "tool_rows": 0
+    },
+    "protium/hyperion": {
+      "train": 99,
+      "val": 1,
+      "tool_rows": 0
+    },
+    "protium/oracle": {
+      "train": 99,
+      "val": 1,
+      "tool_rows": 0
+    },
+    "protium/prometheus": {
+      "train": 98,
+      "val": 2,
+      "tool_rows": 0
+    },
+    "protium/proteus": {
+      "train": 97,
+      "val": 3,
+      "tool_rows": 0
+    },
+    "protium/solstice": {
+      "train": 98,
+      "val": 2,
+      "tool_rows": 0
+    },
+    "protium/swarm": {
+      "train": 99,
+      "val": 1,
+      "tool_rows": 0
+    },
+    "aesthetic/bento": {
+      "train": 97,
+      "val": 3,
+      "tool_rows": 0
+    },
+    "aesthetic/cyberpunk": {
+      "train": 99,
+      "val": 1,
+      "tool_rows": 0
+    },
+    "aesthetic/editorial": {
+      "train": 97,
+      "val": 3,
+      "tool_rows": 0
+    },
+    "aesthetic/exquisite": {
+      "train": 98,
+      "val": 2,
+      "tool_rows": 0
+    },
+    "aesthetic/luxury": {
+      "train": 99,
+      "val": 1,
+      "tool_rows": 0
+    },
+    "aesthetic/neobrutalism": {
+      "train": 98,
+      "val": 2,
+      "tool_rows": 0
+    },
+    "aesthetic/svg_isometric": {
+      "train": 98,
+      "val": 2,
+      "tool_rows": 0
+    },
+    "orbit/childlike_capacity": {
+      "train": 94,
+      "val": 6,
+      "tool_rows": 0
+    },
+    "orbit/contextual_sanity": {
+      "train": 95,
+      "val": 5,
+      "tool_rows": 0
+    },
+    "orbit/instrument_bounded": {
+      "train": 99,
+      "val": 1,
+      "tool_rows": 0
+    },
+    "orbit/provisional_judgment": {
+      "train": 99,
+      "val": 1,
+      "tool_rows": 0
+    },
+    "agi/agi-brainstorm-007": {
+      "train": 97,
+      "val": 3,
+      "tool_rows": 100
+    },
+    "agi/agi-brainstorm-business": {
+      "train": 97,
+      "val": 3,
+      "tool_rows": 0
+    },
+    "agi/agi-brainstorm-coder": {
+      "train": 99,
+      "val": 1,
+      "tool_rows": 0
+    },
+    "agi/agi-brainstorm-comedy": {
+      "train": 99,
+      "val": 1,
+      "tool_rows": 0
+    },
+    "agi/agi-brainstorm-house": {
+      "train": 99,
+      "val": 1,
+      "tool_rows": 0
+    },
+    "agi/agi-brainstorm-matlock": {
+      "train": 97,
+      "val": 3,
+      "tool_rows": 0
+    },
+    "agi/agi-brainstorm-prompt": {
+      "train": 98,
+      "val": 2,
+      "tool_rows": 0
+    },
+    "agi/agi-brainstorm-stark": {
+      "train": 94,
+      "val": 6,
+      "tool_rows": 0
+    },
+    "agi/agi-brainstorm-story": {
+      "train": 99,
+      "val": 1,
+      "tool_rows": 0
+    },
+    "agi/agi-house-comedy": {
+      "train": 98,
+      "val": 2,
+      "tool_rows": 0
+    },
+    "agi/agi-musk-brainstorm": {
+      "train": 98,
+      "val": 2,
+      "tool_rows": 0
+    },
+    "agi/agi-musk-business": {
+      "train": 98,
+      "val": 2,
+      "tool_rows": 0
+    },
+    "agi/agi-musk-curie": {
+      "train": 99,
+      "val": 1,
+      "tool_rows": 0
+    },
+    "agi/agi-pkd-comedy": {
+      "train": 99,
+      "val": 1,
+      "tool_rows": 0
+    },
+    "agi/agi-pkd-house": {
+      "train": 98,
+      "val": 2,
+      "tool_rows": 0
+    },
+    "agi/agi-pkd-neo": {
+      "train": 95,
+      "val": 5,
+      "tool_rows": 0
+    },
+    "agi/agi-pkd-vader-comedy": {
+      "train": 97,
+      "val": 3,
+      "tool_rows": 0
+    },
+    "agi/agi-stark-comedy": {
+      "train": 99,
+      "val": 1,
+      "tool_rows": 0
+    },
+    "agi/agi-stark-musk-coder": {
+      "train": 99,
+      "val": 1,
+      "tool_rows": 0
+    },
+    "agi/agi-stark-musk-curie": {
+      "train": 99,
+      "val": 1,
+      "tool_rows": 0
+    },
+    "agi/agi-teacher-007": {
+      "train": 96,
+      "val": 4,
+      "tool_rows": 100
+    },
+    "agi/agi-teacher-business": {
+      "train": 95,
+      "val": 5,
+      "tool_rows": 0
+    },
+    "agi/agi-teacher-coder": {
+      "train": 97,
+      "val": 3,
+      "tool_rows": 0
+    },
+    "agi/agi-vader-comedy": {
+      "train": 98,
+      "val": 2,
+      "tool_rows": 0
+    },
+    "stance/deckard": {
+      "train": 99,
+      "val": 1,
+      "tool_rows": 0
+    },
+    "patch/jumbo": {
+      "train": 99,
+      "val": 1,
+      "tool_rows": 0
+    },
+    "reasoning_mode/loop": {
+      "train": 98,
+      "val": 2,
+      "tool_rows": 0
+    }
+  },
+  "teacher": "procedural"
+}

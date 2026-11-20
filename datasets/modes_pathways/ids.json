@@ -1,0 +1,567 @@
+{
+  "taxonomy": "skinny-v1",
+  "source_branch": "cursor/spark-skinny-template-3cef",
+  "source_file": "docs/taxonomy_skinny.json",
+  "id_rule": "The stable key is category + id. Do not rename an id. Add aliases when a source name must point at an existing id.",
+  "alias_policy": "Aliases are accepted inputs only. meta.category and meta.id store the canonical id, never an alias.",
+  "slice": [
+    "pathway",
+    "mode",
+    "thinking_effort",
+    "reasoning_effort",
+    "channel",
+    "protium",
+    "aesthetic",
+    "orbit",
+    "agi",
+    "stance",
+    "patch",
+    "reasoning_mode"
+  ],
+  "counts": {
+    "pathway": 4,
+    "mode": 26,
+    "thinking_effort": 3,
+    "reasoning_effort": 6,
+    "channel": 2,
+    "protium": 12,
+    "aesthetic": 7,
+    "orbit": 4,
+    "agi": 24,
+    "stance": 1,
+    "patch": 1,
+    "reasoning_mode": 1
+  },
+  "total": 91,
+  "items": [
+    {
+      "id": "auto",
+      "category": "pathway",
+      "description": "Unset pathway. Use s1 unless the turn is heavy, then s2; s3 only for a check."
+    },
+    {
+      "id": "s1",
+      "category": "pathway",
+      "description": "Fast home base: routine, social, or quick turns; leave it only for a real reason."
+    },
+    {
+      "id": "s2",
+      "category": "pathway",
+      "description": "Deliberate work for a novel, hard, multi-step, or high-stakes turn, then return to s1."
+    },
+    {
+      "id": "s3",
+      "category": "pathway",
+      "description": "Meta checks only, never a home: inhibit, escalate, reroute, heal, or settle, then leave."
+    },
+    {
+      "id": "auto",
+      "category": "mode",
+      "description": "Unset mode. Pick the mode from the situation; do not perform a mode named auto."
+    },
+    {
+      "id": "banter",
+      "category": "mode",
+      "description": "Quick jokes, roasts, and back-and-forth.",
+      "pathway": "s1"
+    },
+    {
+      "id": "brainstorm",
+      "category": "mode",
+      "description": "Several perspectives, then a short ranked shortlist.",
+      "pathway": "s2"
+    },
+    {
+      "id": "build",
+      "category": "mode",
+      "description": "AI and ML systems engineering as the thinking style for this turn.",
+      "pathway": "s2"
+    },
+    {
+      "id": "chat",
+      "category": "mode",
+      "description": "Instant general conversation with zero ceremony.",
+      "aliases": [
+        "legacy:low",
+        "legacy:soft",
+        "legacy:sensual"
+      ],
+      "pathway": "s1"
+    },
+    {
+      "id": "code",
+      "category": "mode",
+      "description": "Software engineering as the thinking style for this turn.",
+      "pathway": "s2"
+    },
+    {
+      "id": "complete",
+      "category": "mode",
+      "description": "Finish the thought the user already started.",
+      "pathway": "s1"
+    },
+    {
+      "id": "deep",
+      "category": "mode",
+      "description": "Sustained multi-step reasoning.",
+      "aliases": [
+        "legacy:medium",
+        "legacy:deep"
+      ],
+      "pathway": "s2"
+    },
+    {
+      "id": "escalate",
+      "category": "mode",
+      "description": "Decide s1 is not enough and switch to s2 early.",
+      "pathway": "s3"
+    },
+    {
+      "id": "extreme",
+      "category": "mode",
+      "description": "Maximum depth plus a full validation pass.",
+      "aliases": [
+        "legacy:high",
+        "legacy:xhigh"
+      ],
+      "pathway": "s2"
+    },
+    {
+      "id": "heal",
+      "category": "mode",
+      "description": "Cut a loop, contradiction, or corrupt stretch, then continue.",
+      "pathway": "s3"
+    },
+    {
+      "id": "hotpot",
+      "category": "mode",
+      "description": "Fast mixed-domain questions answered straight from recall.",
+      "pathway": "s1"
+    },
+    {
+      "id": "inhibit",
+      "category": "mode",
+      "description": "Catch a wrong fast answer before it ships, and rerun it as s2.",
+      "pathway": "s3"
+    },
+    {
+      "id": "logic",
+      "category": "mode",
+      "description": "First principles: premises, derivation, and a falsify pass.",
+      "pathway": "s2"
+    },
+    {
+      "id": "pattern",
+      "category": "mode",
+      "description": "Recognize a shape you have seen before and match it.",
+      "pathway": "s1"
+    },
+    {
+      "id": "plan",
+      "category": "mode",
+      "description": "Branch a few candidate plans, stress-test them, and converge.",
+      "pathway": "s2"
+    },
+    {
+      "id": "react",
+      "category": "mode",
+      "description": "Immediate in-character reply for a scene already in motion.",
+      "pathway": "s1"
+    },
+    {
+      "id": "recall",
+      "category": "mode",
+      "description": "Retrieve something already said in this conversation.",
+      "pathway": "s1"
+    },
+    {
+      "id": "reroute",
+      "category": "mode",
+      "description": "The topic, tone, or register shifted; re-pick the frame silently.",
+      "pathway": "s3"
+    },
+    {
+      "id": "research",
+      "category": "mode",
+      "description": "An evidence panel with sources graded and gaps named.",
+      "pathway": "s2"
+    },
+    {
+      "id": "settle",
+      "category": "mode",
+      "description": "Last check before an s2 answer ships: confirm you answered the question that was asked.",
+      "pathway": "s3"
+    },
+    {
+      "id": "skim",
+      "category": "mode",
+      "description": "Pull the gist and the surface facts, nothing deeper.",
+      "pathway": "s1"
+    },
+    {
+      "id": "solve",
+      "category": "mode",
+      "description": "Math or word problems, each step checked.",
+      "pathway": "s2"
+    },
+    {
+      "id": "stream",
+      "category": "mode",
+      "description": "Real-time reply at the lowest latency that still fits.",
+      "pathway": "s1"
+    },
+    {
+      "id": "teach",
+      "category": "mode",
+      "description": "Diagnose the learner's level, sequence the idea, and check it landed.",
+      "pathway": "s2"
+    },
+    {
+      "id": "vibe",
+      "category": "mode",
+      "description": "Match tone and register; a social reflex, not an analysis.",
+      "pathway": "s1"
+    },
+    {
+      "id": "high",
+      "category": "thinking_effort",
+      "description": "A full think before the answer. Native effort when the pathway is s2 or auto."
+    },
+    {
+      "id": "low",
+      "category": "thinking_effort",
+      "description": "A short think, then the answer. Native effort when the pathway is s1."
+    },
+    {
+      "id": "off",
+      "category": "thinking_effort",
+      "description": "Close the think tag and answer directly.",
+      "aliases": [
+        "enable_thinking:false",
+        "protium:mortal",
+        "protium:L0"
+      ]
+    },
+    {
+      "id": "effort_high",
+      "category": "reasoning_effort",
+      "description": "Two analytical paths, stress-tested, with accuracy ahead of speed.",
+      "aliases": [
+        "dau_high"
+      ]
+    },
+    {
+      "id": "effort_low",
+      "category": "reasoning_effort",
+      "description": "Fewest tokens and one path, with no preface.",
+      "aliases": [
+        "dau_low"
+      ]
+    },
+    {
+      "id": "effort_medium",
+      "category": "reasoning_effort",
+      "description": "One planned path, one verification, then stop.",
+      "aliases": [
+        "dau_medium"
+      ]
+    },
+    {
+      "id": "effort_medium_low",
+      "category": "reasoning_effort",
+      "description": "Direct and practical, with a brief outline beside the answer.",
+      "aliases": [
+        "medium-low",
+        "power_x12:medium-low"
+      ]
+    },
+    {
+      "id": "effort_ultra",
+      "category": "reasoning_effort",
+      "description": "Exhaustive drafts and an adversarial pass, with perfection ahead of budget.",
+      "aliases": [
+        "ultra"
+      ]
+    },
+    {
+      "id": "effort_xultra",
+      "category": "reasoning_effort",
+      "description": "Ultra depth plus verbose resolution. A leading x on a construct means that construct at this depth.",
+      "aliases": [
+        "xultra",
+        "xxhigh"
+      ]
+    },
+    {
+      "id": "instruct",
+      "category": "channel",
+      "description": "The same frame with the answer channel only. A leading i on an id, including iagi-, selects this. Protium's silent i prefix is this channel at that level.",
+      "aliases": [
+        "i-prefix",
+        "iagi-prefix",
+        "protium:i-prefix"
+      ]
+    },
+    {
+      "id": "reasoning",
+      "category": "channel",
+      "description": "Think in the think tag, then answer. This is the default channel."
+    },
+    {
+      "id": "apollo",
+      "category": "protium",
+      "description": "L2 disciplined deduction: trace the implications in a line and exit when the premise checks out."
+    },
+    {
+      "id": "artemis",
+      "category": "protium",
+      "description": "L3 boundary audit: nulls, limits, off-by-one, and malformed input, then stop."
+    },
+    {
+      "id": "athena",
+      "category": "protium",
+      "description": "L4 strategic architecture: sub-tasks, dependencies, and one tradeoff, then the vector."
+    },
+    {
+      "id": "council",
+      "category": "protium",
+      "description": "Adversarial specialist panel, then a ruling. Open the answer with [COUNCIL VERDICT]."
+    },
+    {
+      "id": "einstein",
+      "category": "protium",
+      "description": "L8 theoretical mastery: strip to the invariant that collapses the whole problem. Not the DavidAU brainstormer."
+    },
+    {
+      "id": "hermes",
+      "category": "protium",
+      "description": "L1 rapid instinct: one sanity check, then the shortest bridge that holds."
+    },
+    {
+      "id": "hyperion",
+      "category": "protium",
+      "description": "L7 first principles: reduce to ground truths and exit the instant it resolves."
+    },
+    {
+      "id": "oracle",
+      "category": "protium",
+      "description": "L9 proof-grade: atomic and edge proofs, and no placeholders, for as long as the proof needs."
+    },
+    {
+      "id": "prometheus",
+      "category": "protium",
+      "description": "L5 defensive engineering: crashes, corruption, scale, and a graceful failure path."
+    },
+    {
+      "id": "proteus",
+      "category": "protium",
+      "description": "L10 freehand default: use whatever depth the problem demands and exit the moment it holds.",
+      "aliases": [
+        "dynamic",
+        "adaptive",
+        "fluid",
+        "default"
+      ]
+    },
+    {
+      "id": "solstice",
+      "category": "protium",
+      "description": "L6 axiomatic derivation: name the invariants, try distinct architectures, and converge."
+    },
+    {
+      "id": "swarm",
+      "category": "protium",
+      "description": "Divergent multi-angle pass, then one synthesis. Open the answer with [SWARM VERDICT]."
+    },
+    {
+      "id": "bento",
+      "category": "aesthetic",
+      "description": "Dark modular cards, a spotlight, and asymmetric grid spans."
+    },
+    {
+      "id": "cyberpunk",
+      "category": "aesthetic",
+      "description": "Tactical HUD: void black, cyan and magenta, scanlines, and monospace labels."
+    },
+    {
+      "id": "editorial",
+      "category": "aesthetic",
+      "description": "Studio print: ivory, carbon, serif headlines, and a lot of empty space."
+    },
+    {
+      "id": "exquisite",
+      "category": "aesthetic",
+      "description": "Modern craft: OKLCH neutrals, layered shadow, spring motion, and finished SVG. The frontend craft spec lives here."
+    },
+    {
+      "id": "luxury",
+      "category": "aesthetic",
+      "description": "Haute minimal: obsidian surfaces, a hairline gold edge, and editorial serif type."
+    },
+    {
+      "id": "neobrutalism",
+      "category": "aesthetic",
+      "description": "Hard black borders, flat high-chroma color, and a shadow that does not blur."
+    },
+    {
+      "id": "svg_isometric",
+      "category": "aesthetic",
+      "description": "True 30-degree isometric vectors with three-plane light and no raster art."
+    },
+    {
+      "id": "childlike_capacity",
+      "category": "orbit",
+      "description": "Keep play and exploration without dropping rigor."
+    },
+    {
+      "id": "contextual_sanity",
+      "category": "orbit",
+      "description": "Stay on the user's actual context, and ask only if the answer would change the result."
+    },
+    {
+      "id": "instrument_bounded",
+      "category": "orbit",
+      "description": "Treat every conclusion as limited by the evidence, tools, and measurements you actually have."
+    },
+    {
+      "id": "provisional_judgment",
+      "category": "orbit",
+      "description": "Make a useful judgment and keep it revisable."
+    },
+    {
+      "id": "agi-brainstorm-007",
+      "category": "agi",
+      "description": "Fuse brainstorm and 007: many angles, then one plan that actually executes."
+    },
+    {
+      "id": "agi-brainstorm-business",
+      "category": "agi",
+      "description": "Fuse brainstorm and business: novel options ranked by whether they can ship."
+    },
+    {
+      "id": "agi-brainstorm-coder",
+      "category": "agi",
+      "description": "Fuse brainstorm and coder: several designs, then the one you would commit."
+    },
+    {
+      "id": "agi-brainstorm-comedy",
+      "category": "agi",
+      "description": "Fuse brainstorm and comedy: ideas that are new and that land."
+    },
+    {
+      "id": "agi-brainstorm-house",
+      "category": "agi",
+      "description": "Fuse brainstorm and house: wild differentials, then the test that kills them."
+    },
+    {
+      "id": "agi-brainstorm-matlock",
+      "category": "agi",
+      "description": "Fuse brainstorm and matlock: many theories, then the one the record supports."
+    },
+    {
+      "id": "agi-brainstorm-prompt",
+      "category": "agi",
+      "description": "Fuse brainstorm and prompt: many phrasings, then the prompt that blocks the failure."
+    },
+    {
+      "id": "agi-brainstorm-stark",
+      "category": "agi",
+      "description": "Fuse brainstorm and stark: a novel mechanism, then the build."
+    },
+    {
+      "id": "agi-brainstorm-story",
+      "category": "agi",
+      "description": "Fuse brainstorm and story: several scenes, then the one with motion."
+    },
+    {
+      "id": "agi-house-comedy",
+      "category": "agi",
+      "description": "Fuse house and comedy: a sharp diagnosis whose delivery is the joke."
+    },
+    {
+      "id": "agi-musk-brainstorm",
+      "category": "agi",
+      "description": "Fuse musk and brainstorm: first-principles options, and keep the novel ones."
+    },
+    {
+      "id": "agi-musk-business",
+      "category": "agi",
+      "description": "Fuse musk and business: physics and unit economics in the same decision."
+    },
+    {
+      "id": "agi-musk-curie",
+      "category": "agi",
+      "description": "Fuse musk and curie: an ambitious build held to the measurement."
+    },
+    {
+      "id": "agi-pkd-comedy",
+      "category": "agi",
+      "description": "Fuse pkd and comedy: paranoia played for a laugh that still tells the truth."
+    },
+    {
+      "id": "agi-pkd-house",
+      "category": "agi",
+      "description": "Fuse pkd and house: question what is real, then test the diagnosis."
+    },
+    {
+      "id": "agi-pkd-neo",
+      "category": "agi",
+      "description": "Fuse pkd and neo: the control system, and the person waking up inside it."
+    },
+    {
+      "id": "agi-pkd-vader-comedy",
+      "category": "agi",
+      "description": "Fuse pkd, vader, and comedy: control, duty, and the joke at the center."
+    },
+    {
+      "id": "agi-stark-comedy",
+      "category": "agi",
+      "description": "Fuse stark and comedy: engineering swagger with a punchline."
+    },
+    {
+      "id": "agi-stark-musk-coder",
+      "category": "agi",
+      "description": "Fuse stark, musk, and coder: vision, first principles, and production code."
+    },
+    {
+      "id": "agi-stark-musk-curie",
+      "category": "agi",
+      "description": "Fuse stark, musk, and curie: build it from first principles and show the measurement."
+    },
+    {
+      "id": "agi-teacher-007",
+      "category": "agi",
+      "description": "Fuse teacher and 007: teach a multi-step tool run while isolating each failure."
+    },
+    {
+      "id": "agi-teacher-business",
+      "category": "agi",
+      "description": "Fuse teacher and business: teach the tradeoff, then the decision."
+    },
+    {
+      "id": "agi-teacher-coder",
+      "category": "agi",
+      "description": "Fuse teacher and coder: teach by writing the code and explaining the move."
+    },
+    {
+      "id": "agi-vader-comedy",
+      "category": "agi",
+      "description": "Fuse vader and comedy: terrible gravity and comic timing."
+    },
+    {
+      "id": "deckard",
+      "category": "stance",
+      "description": "Observational, anti-slop prose from the Deckard dataset collection. There is no Deckard persona card."
+    },
+    {
+      "id": "jumbo",
+      "category": "patch",
+      "description": "Follow the output contract exactly and do not skip a required part. The Jumbo 747 line, not a separate persona."
+    },
+    {
+      "id": "loop",
+      "category": "reasoning_mode",
+      "description": "Re-ponder a section and deepen the plan before answering. The looping-model premise, not a separate template."
+    }
+  ]
+}
